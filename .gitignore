@@ -1,0 +1,4 @@
+# 项目排除路径
+/Bibibi-admin/target/
+/Bibibi-common/target/
+/Bibibi-web/target/
