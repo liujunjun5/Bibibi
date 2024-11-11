@@ -48,3 +48,5 @@ log:
 admin:
   account: admin
   password: admin123
+
+showFFmegLog: true

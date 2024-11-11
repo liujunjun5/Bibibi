@@ -1,15 +1,20 @@
 package com.Bibibi.service.impl;
 
+import com.Bibibi.component.RedisComponent;
+import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.CategoryInfo;
 import com.Bibibi.entity.query.CategoryInfoQuery;
 import com.Bibibi.entity.query.SimplePage;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
+import com.Bibibi.exception.BusinessException;
 import com.Bibibi.mappers.CategoryInfoMappers;
 import com.Bibibi.service.CategoryInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,12 +27,29 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 
 	@Resource
 	private CategoryInfoMappers<CategoryInfo, CategoryInfoQuery> categoryInfoMappers;
+	@Autowired
+	private RedisComponent redisComponent;
 
 	/**
 	 * 根据条件查询列表
 	 */
 	public List<CategoryInfo> findListByParam(CategoryInfoQuery query) {
-		return this.categoryInfoMappers.selectList(query);
+		List<CategoryInfo> list = this.categoryInfoMappers.selectList(query);
+		if (query.getConvert2Tree() != null && query.getConvert2Tree()) {
+			list = convertLine2Tree(list, Constants.ZERO);
+		}
+		return list;
+	}
+
+	private List<CategoryInfo> convertLine2Tree(List<CategoryInfo> dataList, Integer pid) {
+		List<CategoryInfo> children = new ArrayList<>();
+		for (CategoryInfo m : dataList) {
+			if (m.getCategoryId() != null && m.getPCategoryId() != null && m.getPCategoryId().equals(pid)) {
+				m.setChildren(convertLine2Tree(dataList, m.getCategoryId()));
+				children.add(m);
+			}
+		}
+		return children;
 	}
 
 	/**
@@ -121,4 +143,56 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 		return this.categoryInfoMappers.deleteByCategoryCode(categoryCode);
 	}
 
+	@Override
+	public void saveCategory(CategoryInfo bean) throws BusinessException {
+		CategoryInfo dbBean = this.categoryInfoMappers.selectByCategoryCode(bean.getCategoryCode());
+		if (bean.getCategoryId() == null && dbBean != null ||
+				bean.getCategoryId() != null && dbBean != null && !bean.getCategoryId().equals(dbBean.getCategoryId())) {
+			throw new BusinessException("分类编号已存在");
+		}
+		if (bean.getCategoryId() == null) {
+			Integer maxSort = this.categoryInfoMappers.selectMaxSort(bean.getPCategoryId());
+			bean.setSort(maxSort + 1);
+			this.categoryInfoMappers.insert(bean);
+		} else {
+			this.categoryInfoMappers.updateByCategoryId(bean, bean.getCategoryId());
+		}
+
+		save2Redis();
+	}
+
+	@Override
+	public void delCategory(Integer categoryId) {
+		//TODO 查询分类下是否有视频
+		CategoryInfoQuery categoryInfoQuery = new CategoryInfoQuery();
+		categoryInfoQuery.setCategoryIdOrPCategoryId(categoryId);
+		categoryInfoMappers.deleteByParam(categoryInfoQuery);
+
+		save2Redis();
+	}
+
+	@Override
+	public void changeSort(Integer pCategoryId, String categoryIds) {
+		String[] categoryIdArray = categoryIds.split(",");
+		ArrayList<CategoryInfo> categoryList = new ArrayList<>();
+		Integer sort = 1;
+		for (String categoryId : categoryIdArray) {
+			CategoryInfo categoryInfo = new CategoryInfo();
+			categoryInfo.setCategoryId(Integer.parseInt(categoryId));
+			categoryInfo.setPCategoryId(pCategoryId);
+			categoryInfo.setSort(sort++);
+			categoryList.add(categoryInfo);
+		}
+		this.categoryInfoMappers.updateSortBatch(categoryList);
+
+		save2Redis();
+	}
+
+	private void save2Redis() {
+		CategoryInfoQuery query = new CategoryInfoQuery();
+		query.setOrderBy("sort asc");
+		query.setConvert2Tree(true);
+		List<CategoryInfo> categoryInfoList = findListByParam(query);
+		redisComponent.saveCategoryList(categoryInfoList);
+	}
 }

@@ -1,6 +1,10 @@
 package com.Bibibi.mappers;
 
+import com.Bibibi.entity.po.CategoryInfo;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.ArrayList;
 
 /**
  * @Description:分类信息Mapper
@@ -39,4 +43,13 @@ public interface CategoryInfoMappers<T, P> extends BaseMapper {
 	 */
 	Integer deleteByCategoryCode(@Param("categoryCode") String categoryCode);
 
+	/**
+	 * 查找当前父级id下，序号最大的排序
+	 */
+	@Select("SELECT IFNULL(MAX(sort), 0) FROM category_info where p_category_id = #{pCategoryId}")
+	Integer selectMaxSort(@Param("pCategoryId") Integer pCategoryId);
+
+	void deleteByParam(P categoryInfoQuery);
+
+	void updateSortBatch(@Param("categoryList") ArrayList<CategoryInfo> categoryList);
 }

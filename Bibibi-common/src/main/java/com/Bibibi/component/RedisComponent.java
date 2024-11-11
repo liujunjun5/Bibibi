@@ -2,10 +2,12 @@ package com.Bibibi.component;
 
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.po.CategoryInfo;
 import com.Bibibi.redis.RedisUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -61,5 +63,9 @@ public class RedisComponent {
         String token = UUID.randomUUID().toString();
         redisUtils.setex(Constants.REDIS_KEY_TOKEN_ADMIN + token, account, Constants.REDIS_KEY_EXPIRES_ONE_DAY);
         return token;
+    }
+
+    public void saveCategoryList(List<CategoryInfo> categoryInfoList) {
+        redisUtils.set(Constants.REDIS_KEY_CATEGORY_LIST, categoryInfoList);
     }
 }

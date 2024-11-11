@@ -1,4 +1,4 @@
-package com.Bibibi.admin.controller;
+package com.Bibibi.web.controller;
 
 import com.Bibibi.entity.po.CategoryInfo;
 import com.Bibibi.entity.query.CategoryInfoQuery;

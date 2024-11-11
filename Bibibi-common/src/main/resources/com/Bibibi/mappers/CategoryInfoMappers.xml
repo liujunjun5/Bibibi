@@ -95,9 +95,9 @@
 
 	<!--插入 （匹配有值的字段）-->
 	<insert id = "insert" parameterType="com.Bibibi.entity.po.CategoryInfo">
-		<selectKey keyProperty="bean.category_id" resultType="Integer" order="AFTER">
-			SELECT LAST_INSERT_ID()
-		</selectKey>
+		<!--		<selectKey keyProperty="bean.category_id" resultType="Integer" order="AFTER">-->
+		<!--			SELECT LAST_INSERT_ID()-->
+		<!--		</selectKey>-->
 		INSERT INTO category_info
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="bean.categoryId != null">
@@ -198,6 +198,9 @@
 		</trim>
 		on DUPLICATE key update
 		<trim prefix="" suffix="" suffixOverrides=",">
+			<if test="bean.categoryId != null">
+				category_id = VALUES(category_id)
+			</if>
 			<if test="bean.categoryName != null">
 				 category_name = VALUES(category_name)
 			</if>
@@ -311,4 +314,15 @@
 	<delete id="deleteByCategoryCode">
 		delete from category_info where category_code=#{categoryCode}
 	</delete>
+
+	<delete id="deleteByParam">
+		DELETE FROM category_info
+		WHERE category_id = #{categoryIdOrPCategoryId} OR p_category_id = #{categoryIdOrPCategoryId}
+	</delete>
+
+	<update id="updateSortBatch">
+		<foreach collection="categoryList" separator=";" item="item">
+			update category_info set sort = #{item.sort} where category_id = #{item.categoryId} and p_category_id = #{item.pCategoryId}
+		</foreach>
+	</update>
 </mapper>

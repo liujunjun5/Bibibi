@@ -14,6 +14,13 @@ public class AppConfig {
     @Value("${admin.password}")
     private String adminPassword;
 
+    @Value("${showFFmegLog}")
+    private Boolean showFFmpegLog;
+
+    public Boolean getShowFFmpegLog() {
+        return showFFmpegLog;
+    }
+
     public String getProjectFolder() {
         return projectFolder;
     }

@@ -1,6 +1,7 @@
 package com.Bibibi.entity.po;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Description:分类信息
@@ -43,6 +44,15 @@ public class CategoryInfo implements Serializable {
 	 */
 	private Integer sort;
 
+	private List<CategoryInfo> children;
+
+	public List<CategoryInfo> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<CategoryInfo> children) {
+		this.children = children;
+	}
 
 	public void setCategoryId(Integer categoryId) {
 		this.categoryId = categoryId;

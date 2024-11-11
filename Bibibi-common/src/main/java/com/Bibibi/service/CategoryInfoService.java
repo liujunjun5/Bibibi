@@ -3,6 +3,7 @@ package com.Bibibi.service;
 import com.Bibibi.entity.po.CategoryInfo;
 import com.Bibibi.entity.query.CategoryInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
+import com.Bibibi.exception.BusinessException;
 
 import java.util.List;
 
@@ -75,4 +76,9 @@ public interface CategoryInfoService {
 	 */
 	Integer deleteByCategoryCode(String categoryCode);
 
+	void saveCategory(CategoryInfo categoryInfo) throws BusinessException;
+
+	void delCategory(Integer categoryId);
+
+	void changeSort(Integer pCategoryId, String categoryIds);
 }
