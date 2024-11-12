@@ -416,4 +416,10 @@
 	<delete id="deleteByUploadIdAndUserId">
 		delete from video_info_file_post where upload_id=#{uploadId} and user_id=#{userId}
 	</delete>
+
+	<delete id="deleteBatchByFileId">
+		delete from video_info_file_post where file_id in (<foreach collection="fileIdList" separator="," item="item">
+		#{item}</foreach>)
+		and user_id = #{userId}
+	</delete>
 </mapper>

@@ -5,6 +5,7 @@ public class Constants {
     public static final Integer ZERO = 0;
     public static final Integer LENGTH_10 = 10;
     public static final Integer LENGTH_15 = 15;
+    public static final Integer LENGTH_20 = 20;
     public static final Integer LENGTH_30 = 30;
 
     public static final Long MB_SIZE = 1024 * 1024L;
@@ -23,6 +24,8 @@ public class Constants {
     public static final String REDIS_KEY_CATEGORY_LIST = REDIS_KEY_PREFIX + "category:list:";
     public static final String REDIS_KEY_UPLOADING_FILE = REDIS_KEY_PREFIX + "uploading:";
     public static final String REDIS_KEY_SYS_SETTING = REDIS_KEY_PREFIX + "sysSetting:";
+    public static final String REDIS_KEY_FILE_DEL = REDIS_KEY_PREFIX + "file:list:del:";
+    public static final String REDIS_KEY_QUEUE_TRANSFER = REDIS_KEY_PREFIX + "queue:transfer:";
 
     public static final String TOKEN_KEY = "token";
     public static final String TOKEN_ADMIN_KEY = "adminToken";
@@ -33,6 +36,7 @@ public class Constants {
     public static final String FILE_FOLDER_TMP = "tmp/";
 
     public static final String IMAGE_Thumbnail_SUFFIX = "_thumbnail.jpg";
+
 
 
 }

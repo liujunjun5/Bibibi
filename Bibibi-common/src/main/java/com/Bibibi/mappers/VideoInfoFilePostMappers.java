@@ -2,6 +2,8 @@ package com.Bibibi.mappers;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * @Description:视频文件信息Mapper
  * @date:2024-11-11
@@ -39,4 +41,8 @@ public interface VideoInfoFilePostMappers<T, P> extends BaseMapper {
 	 */
 	Integer deleteByUploadIdAndUserId(@Param("uploadId") String uploadId, @Param("userId") String userId);
 
+	/**
+	 * 根据带删除文件id与用户id删除
+	 */
+	void deleteBatchByFileId(@Param("fileIdList")List<String> fileIdList, @Param("userId")String userId);
 }

@@ -1,6 +1,9 @@
 package com.Bibibi.service;
 
 import java.util.Date;
+
+import com.Bibibi.entity.po.VideoInfoFilePost;
+import com.Bibibi.exception.BusinessException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.Bibibi.entity.po.VideoInfoPost;
@@ -61,4 +64,5 @@ public interface VideoInfoPostService {
 	 */
 	Integer deleteByVideoId(String videoId);
 
+    void saveVideoInfo(VideoInfoPost videoInfo, List<VideoInfoFilePost> filePostList) throws BusinessException;
 }

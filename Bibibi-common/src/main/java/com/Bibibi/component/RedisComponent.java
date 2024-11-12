@@ -6,6 +6,7 @@ import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
 import com.Bibibi.entity.po.CategoryInfo;
+import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.enums.DateTimePatternEnum;
 import com.Bibibi.redis.RedisUtils;
 import com.Bibibi.utils.DateUtils;
@@ -122,5 +123,14 @@ public class RedisComponent {
 
     public void delVideoFileInfo(String userId, String uploadId) {
         redisUtils.delete(Constants.REDIS_KEY_UPLOADING_FILE + userId + uploadId);
+    }
+
+    //在消息队列放一天，准备删除
+    public void addFile2DelQueue(String videoId, List<String> filePathList) {
+        redisUtils.lpushAll(Constants.REDIS_KEY_FILE_DEL+videoId, filePathList, Constants.REDIS_KEY_EXPIRES_ONE_DAY);
+    }
+
+    public void addFile2TransferQueue(List<VideoInfoFilePost> addFileList) {
+        redisUtils.lpushAll(Constants.REDIS_KEY_QUEUE_TRANSFER, addFileList, 0);
     }
 }

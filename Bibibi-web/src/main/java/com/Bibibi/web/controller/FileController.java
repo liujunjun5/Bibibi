@@ -133,7 +133,7 @@ public class FileController extends ABaseController {
         String folder = appConfig.getProjectFolder() + Constants.FILE_FOLDER + Constants.FILE_COVER + day;
         File folderFile = new File(folder);
         if (!folderFile.exists()) {
-            folderFile.mkdirs();
+            folderFile.mkdirs() ;
         }
         String fileName = file.getOriginalFilename();
         String fileSuffix = StringTools.getFileSuffix(fileName);
