@@ -17,6 +17,7 @@ public class AppConfig {
     @Value("${showFFmegLog}")
     private Boolean showFFmpegLog;
 
+
     public Boolean getShowFFmpegLog() {
         return showFFmpegLog;
     }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -188,6 +189,18 @@ public class CategoryInfoServiceImpl implements CategoryInfoService {
 		save2Redis();
 	}
 
+	@Override
+	public List<CategoryInfo> getAllCategoryList() {
+		List<CategoryInfo> categoryInfoList = redisComponent.getCategoryList();
+		if (categoryInfoList.isEmpty()) {
+			save2Redis();
+		}
+		return redisComponent.getCategoryList();
+	}
+
+	/**
+	 * 刷新缓存
+	 */
 	private void save2Redis() {
 		CategoryInfoQuery query = new CategoryInfoQuery();
 		query.setOrderBy("sort asc");

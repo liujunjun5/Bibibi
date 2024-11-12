@@ -43,3 +43,8 @@ project:
 log:
   root:
     level: debug
+admin:
+  account: admin
+  password: admin123
+
+showFFmegLog: true

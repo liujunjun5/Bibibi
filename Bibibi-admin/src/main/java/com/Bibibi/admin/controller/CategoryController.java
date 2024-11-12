@@ -23,7 +23,7 @@ public class CategoryController extends ABaseController{
     @Resource
     private CategoryInfoService categoryInfoService;
 
-    @PostMapping("/loadCategory")
+    @RequestMapping("/loadCategory")
     public ResponseVO loadCategory(CategoryInfoQuery query) {
         query.setOrderBy("sort asc");
         query.setConvert2Tree(true);
@@ -31,7 +31,7 @@ public class CategoryController extends ABaseController{
         return getSuccessResponseVO(categoryInfoList);
     }
 
-    @PostMapping("/saveCategory")
+    @RequestMapping("/saveCategory")
     public ResponseVO saveCategory(@NotNull Integer pCategoryId,
                                    Integer categoryId,
                                    @NotEmpty String categoryCode,
@@ -50,7 +50,7 @@ public class CategoryController extends ABaseController{
         return getSuccessResponseVO(null);
     }
 
-    @GetMapping("/delCategory")
+    @RequestMapping("/delCategory")
     public ResponseVO delCategory(@NotNull Integer categoryId) throws BusinessException {
 
         categoryInfoService.delCategory(categoryId);
