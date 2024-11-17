@@ -38,37 +38,37 @@
 	<sql id="base_query_condition">
 
 		<if test="query.fileId!=null and query.fileId!=''">
-			and id = #{query.fileId}
+			and file_id = #{query.fileId}
 		</if>
 		<if test="query.uploadId!=null and query.uploadId!=''">
-			and id = #{query.uploadId}
+			and upload_id = #{query.uploadId}
 		</if>
 		<if test="query.userId!=null and query.userId!=''">
-			and id = #{query.userId}
+			and user_id = #{query.userId}
 		</if>
 		<if test="query.videoId!=null and query.videoId!=''">
-			and id = #{query.videoId}
+			and video_id = #{query.videoId}
 		</if>
 		<if test="query.fileIndex!=null">
-			and id = #{query.fileIndex}
+			and file_index = #{query.fileIndex}
 		</if>
 		<if test="query.fileName!=null and query.fileName!=''">
-			and id = #{query.fileName}
+			and file_name = #{query.fileName}
 		</if>
 		<if test="query.fileSize!=null">
-			and id = #{query.fileSize}
+			and file_size = #{query.fileSize}
 		</if>
 		<if test="query.filePath!=null and query.filePath!=''">
-			and id = #{query.filePath}
+			and file_path = #{query.filePath}
 		</if>
 		<if test="query.updateType!=null">
-			and id = #{query.updateType}
+			and update_type = #{query.updateType}
 		</if>
 		<if test="query.transferResult!=null">
-			and id = #{query.transferResult}
+			and transfer_result = #{query.transferResult}
 		</if>
 		<if test="query.duration!=null">
-			and id = #{query.duration}
+			and duration = #{query.duration}
 		</if>
 	</sql>
 
@@ -369,6 +369,10 @@
 	<!-- 根据UploadIdAndUserId查询 -->
 	<select id="selectByUploadIdAndUserId" resultMap="base_result_map">
 		select <include refid="base_column_list"/> from video_info_file_post where upload_id=#{uploadId} and user_id=#{userId}
+	</select>
+
+	<select id="sumDuration" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select ifnull(sum(duration),0) from video_info_file_post where video_id = #{videoId}
 	</select>
 
 	<!-- 根据UploadIdAndUserId更新 -->

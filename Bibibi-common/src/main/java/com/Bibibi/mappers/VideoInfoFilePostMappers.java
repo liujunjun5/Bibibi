@@ -45,4 +45,11 @@ public interface VideoInfoFilePostMappers<T, P> extends BaseMapper {
 	 * 根据带删除文件id与用户id删除
 	 */
 	void deleteBatchByFileId(@Param("fileIdList")List<String> fileIdList, @Param("userId")String userId);
+
+	/**
+	 * 求视频的总时长
+	 * @param videoId
+	 * @return
+	 */
+    Integer sumDuration(@Param("videoId") String videoId);
 }

@@ -39,7 +39,7 @@ public class UcenterVideoPostController extends ABaseController {
      * @param videoId        视频id
      * @param videoCover     视频封面
      * @param videoName      标题
-     * @param pCategoryID    一级分类id
+     * @param pCategoryId    一级分类id
      * @param categoryId     二级分类id
      * @param postType       类型
      * @param introduction   简介

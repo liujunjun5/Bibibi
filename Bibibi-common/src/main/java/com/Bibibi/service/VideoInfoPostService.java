@@ -64,5 +64,15 @@ public interface VideoInfoPostService {
 	 */
 	Integer deleteByVideoId(String videoId);
 
+	/**
+	 * 保存视频信息
+	 * @param videoInfo
+	 * @param filePostList
+	 * @throws BusinessException
+	 */
     void saveVideoInfo(VideoInfoPost videoInfo, List<VideoInfoFilePost> filePostList) throws BusinessException;
+
+	void transferVideoFile(VideoInfoFilePost videoInfoFilePost);
+
+
 }

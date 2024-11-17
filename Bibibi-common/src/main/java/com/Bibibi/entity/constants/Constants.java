@@ -3,6 +3,7 @@ package com.Bibibi.entity.constants;
 public class Constants {
     public static final Integer ONE = 1;
     public static final Integer ZERO = 0;
+    public static final Integer TWO = 2;
     public static final Integer LENGTH_10 = 10;
     public static final Integer LENGTH_15 = 15;
     public static final Integer LENGTH_20 = 20;
@@ -36,7 +37,10 @@ public class Constants {
     public static final String FILE_FOLDER_TMP = "tmp/";
 
     public static final String IMAGE_Thumbnail_SUFFIX = "_thumbnail.jpg";
-
-
+    public static final String TEMP_VIDEO_NAME = "/temp.mp4";
+    public static final String VIDEO_CODE_HEVC = "hevc";
+    public static final String VIDEO_CODE_TEMP_FILE_SUFFIX = "_temp";
+    public static final String TS_NAME = "index.ts";
+    public static final String M3U8_NAME = "index.m3u8";
 
 }

@@ -133,4 +133,8 @@ public class RedisComponent {
     public void addFile2TransferQueue(List<VideoInfoFilePost> addFileList) {
         redisUtils.lpushAll(Constants.REDIS_KEY_QUEUE_TRANSFER, addFileList, 0);
     }
+
+    public VideoInfoFilePost getFileFromTransferQueue() {
+        return (VideoInfoFilePost) redisUtils.rpop(Constants.REDIS_KEY_QUEUE_TRANSFER);
+    }
 }
