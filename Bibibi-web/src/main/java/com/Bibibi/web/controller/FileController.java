@@ -6,16 +6,19 @@ import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
+import com.Bibibi.entity.po.VideoInfoFile;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.enums.DateTimePatternEnum;
 import com.Bibibi.enums.ResponseCodeEnum;
 import com.Bibibi.exception.BusinessException;
+import com.Bibibi.service.VideoInfoFileService;
 import com.Bibibi.utils.DateUtils;
 import com.Bibibi.utils.FFmpegUtils;
 import com.Bibibi.utils.StringTools;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +44,9 @@ public class FileController extends ABaseController {
 
     @Resource
     private RedisComponent redisComponent;
+
+    @Resource
+    private VideoInfoFileService videoInfoFileService;
 
     @Resource
     private FFmpegUtils fFmpegUtils;
@@ -144,5 +150,20 @@ public class FileController extends ABaseController {
             fFmpegUtils.createImageThumbnail(filePath);
         }
         return getSuccessResponseVO(Constants.FILE_COVER + day + "/" + realFileName);
+    }
+
+    @RequestMapping("/videoResource/{fileId}")
+    public void videoResource(HttpServletResponse response, @PathVariable @NotEmpty String fileId) {
+        VideoInfoFile videoInfoFile = videoInfoFileService.getByFileId(fileId);
+        String filePath = videoInfoFile.getFilePath();
+        readFile(response, filePath + "/" + Constants.M3U8_NAME);
+        //TODO 更新视频的阅读信息
+    }
+
+    @RequestMapping("/videoResource/{fileId}/{ts}")
+    public void videoResourceTs(HttpServletResponse response, @PathVariable @NotEmpty String fileId, @PathVariable @NotEmpty String ts) {
+        VideoInfoFile videoInfoFile = videoInfoFileService.getByFileId(fileId);
+        String filePath = videoInfoFile.getFilePath();
+        readFile(response, filePath + "/" + ts);
     }
 }

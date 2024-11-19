@@ -1,14 +1,10 @@
 package com.Bibibi.service;
 
-import java.util.Date;
-
 import com.Bibibi.entity.po.VideoInfoFilePost;
-import com.Bibibi.exception.BusinessException;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
 import com.Bibibi.entity.po.VideoInfoPost;
 import com.Bibibi.entity.query.VideoInfoPostQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
+import com.Bibibi.exception.BusinessException;
 
 import java.util.List;
 /**
@@ -74,5 +70,11 @@ public interface VideoInfoPostService {
 
 	void transferVideoFile(VideoInfoFilePost videoInfoFilePost);
 
-
+	/**
+	 * 管理端审核视频
+	 * @param videoId 视频id
+	 * @param status  审核结果
+	 * @param reason  未通过理由
+	 */
+	void auditVideo(String videoId, Integer status, String reason) throws BusinessException;
 }

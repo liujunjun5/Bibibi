@@ -3,18 +3,23 @@ package com.Bibibi.service.impl;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.config.AppConfig;
 import com.Bibibi.entity.constants.Constants;
+import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
+import com.Bibibi.entity.po.VideoInfo;
+import com.Bibibi.entity.po.VideoInfoFile;
 import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.po.VideoInfoPost;
-import com.Bibibi.entity.query.SimplePage;
-import com.Bibibi.entity.query.VideoInfoFilePostQuery;
-import com.Bibibi.entity.query.VideoInfoPostQuery;
+import com.Bibibi.entity.query.*;
 import com.Bibibi.entity.vo.PaginationResultVO;
+import com.Bibibi.entity.vo.VideoStatusCountInfoVO;
 import com.Bibibi.enums.*;
 import com.Bibibi.exception.BusinessException;
+import com.Bibibi.mappers.VideoInfoFileMappers;
 import com.Bibibi.mappers.VideoInfoFilePostMappers;
+import com.Bibibi.mappers.VideoInfoMappers;
 import com.Bibibi.mappers.VideoInfoPostMappers;
 import com.Bibibi.service.VideoInfoPostService;
+import com.Bibibi.utils.CopyTools;
 import com.Bibibi.utils.FFmpegUtils;
 import com.Bibibi.utils.StringTools;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,6 +54,13 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 	@Resource
 	private VideoInfoFilePostMappers<VideoInfoFilePost, VideoInfoFilePostQuery> videoInfoFilePostMappers;
+
+	@Resource
+	private VideoInfoMappers<VideoInfo, VideoInfoQuery> videoInfoMappers;
+
+	@Resource
+	private VideoInfoFileMappers<VideoInfoFile, VideoInfoFileQuery> videoInfoFileMappers;
+
 
 	@Resource
 	private AppConfig appConfig;
@@ -78,6 +91,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	public PaginationResultVO<VideoInfoPost> findByPage(VideoInfoPostQuery query) {
 		Integer count = this.findCountByParam(query);
 		Integer pageSize = query.getPageSize()==null?PageSize.SIZE15.getSize():query.getPageSize();
+
 		SimplePage page = new SimplePage(query.getPageNo(), count, pageSize);
 		query.setSimplePage(page);
 		List<VideoInfoPost> list = this.findListByParam(query);
@@ -273,7 +287,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			Integer duration = fFmpegUtils.getVideoInfoDuration(completeVideo);
 			updateFilePost.setDuration(duration);
 			updateFilePost.setFileSize(new File(completeVideo).length());
-			updateFilePost.setFilePath(Constants.FILE_COVER + fileDto.getFilePath());
+			updateFilePost.setFilePath(Constants.FILE_VIDEO + fileDto.getFilePath());
 			updateFilePost.setTransferResult(VideoFileTransferResultEnum.SUCCESS.getStatus());
 
 			this.convertVideo2Ts(completeVideo);
@@ -309,6 +323,100 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 				videoInfoPostMappers.updateByVideoId(videoUpdate, videoInfoFilePost.getVideoId());
 			}
 		}
+	}
+
+	/**
+	 * 审核视频
+	 * @param videoId 视频id
+	 * @param status  审核结果
+	 * @param reason  未通过理由
+	 * @throws BusinessException
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void auditVideo(String videoId, Integer status, String reason) throws BusinessException {
+		VideoStatusEnum videoStatusEnum = VideoStatusEnum.getByStatus(status);
+		if (videoStatusEnum==null) {
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+		VideoInfoPost videoInfoPost = new VideoInfoPost();
+		videoInfoPost.setStatus(status);
+
+		VideoInfoPostQuery videoInfoPostQuery = new VideoInfoPostQuery();
+		videoInfoPostQuery.setStatus(VideoStatusEnum.STATUS2.getStatus());
+		videoInfoPostQuery.setVideoId(videoId);
+		Integer audioCount = this.videoInfoPostMappers.updateByParam(videoInfoPost, videoInfoPostQuery);
+		if (audioCount== 0) {
+			throw new BusinessException("审核失败，请稍后重试");
+		}
+
+		/**
+		 * 更新视频状态
+		 */
+		VideoInfoFilePost videoInfoFilePost = new VideoInfoFilePost();
+		videoInfoFilePost.setUpdateType(VideoFileUpdateTypeEnum.NO_UPDATE.getStatus());
+
+		VideoInfoFilePostQuery filePostQuery = new VideoInfoFilePostQuery();
+		filePostQuery.setVideoId(videoId);
+		this.videoInfoFilePostMappers.updateByParam(videoInfoFilePost, filePostQuery);
+
+		VideoInfoPost infoPost = this.videoInfoPostMappers.selectByVideoId(videoId);
+
+		/**
+		 * 第一次发视频的话，增加积分
+		 */
+		VideoInfo dbVideoInfo = this.videoInfoMappers.selectByVideoId(videoId);
+		if (dbVideoInfo==null){
+			SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
+			//TODO 增加硬币
+		}
+
+		/**
+		 * 将发布信息更新到正式表信息
+		 */
+		VideoInfo videoInfo = CopyTools.copy(infoPost, VideoInfo.class);
+		Integer id = infoPost.getPCategoryId();
+		videoInfo.setPCategoryId(id);
+//		videoInfo.setPCategoryId(infoPost.getPCategoryId());
+		this.videoInfoMappers.insertOrUpdate(videoInfo);
+
+		/**
+		 * 更新视频文件信息 --- 先删除原来的，变为最新的
+		 */
+		VideoInfoFileQuery videoInfoFileQuery = new VideoInfoFileQuery();
+		videoInfoFileQuery.setVideoId(videoId);
+		this.videoInfoFileMappers.deleteByParam(videoInfoFileQuery);
+
+		VideoInfoFilePostQuery videoInfoFilePostQuery = new VideoInfoFilePostQuery();
+		videoInfoFilePostQuery.setVideoId(videoId);
+		List<VideoInfoFilePost> videoInfoFilePostList = this.videoInfoFilePostMappers.selectList(videoInfoFilePostQuery);
+
+		List<VideoInfoFile> videoInfoFileList = CopyTools.copyList(videoInfoFilePostList, VideoInfoFile.class);
+		this.videoInfoFileMappers.insertBatch(videoInfoFileList);
+
+		/**
+		 * 删除消息队列中的文件，上一批次添加进来的，用户删除的
+		 */
+		List<String> filePathList = redisComponent.getDelFileList(videoId);
+		if (filePathList != null) {
+			for (String path : filePathList) {
+				File file = new File(appConfig.getProjectFolder() + Constants.FILE_FOLDER + path);
+				if (file.exists()) {
+					try {
+						FileUtils.deleteDirectory(file);
+					} catch (IOException e) {
+						log.error("删除文件失败", e);
+					}
+				}
+			}
+		}
+
+		redisComponent.cleanDelFileList(videoId);
+
+		/**
+		 * 保存信息到es
+		 */
+		//TODO
 	}
 
 	private void convertVideo2Ts(String completeVideo) throws BusinessException {

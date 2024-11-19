@@ -49,7 +49,7 @@ public interface CategoryInfoMappers<T, P> extends BaseMapper {
 	@Select("SELECT IFNULL(MAX(sort), 0) FROM category_info where p_category_id = #{pCategoryId}")
 	Integer selectMaxSort(@Param("pCategoryId") Integer pCategoryId);
 
-	void deleteByParam(P categoryInfoQuery);
+//	void deleteByParam(P categoryInfoQuery);
 
 	void updateSortBatch(@Param("categoryList") ArrayList<CategoryInfo> categoryList);
 }

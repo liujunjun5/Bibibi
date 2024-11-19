@@ -1,15 +1,14 @@
 package com.Bibibi.entity.po;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.io.Serializable;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @Description:用户信息
- * @date:2024-11-03
+ * @date:2024-11-18
  * @author: liujun
  */
 public class UserInfo implements Serializable {
@@ -98,15 +97,10 @@ public class UserInfo implements Serializable {
 	 */
 	private Integer theme;
 
-	private Integer fansCount;
-
-	private Integer focusCount;
-
-	private Integer likeCount;
-
-	private Integer playCount;
-
-	private Boolean haveFocus;
+	/**
+	 * 头像
+	 */
+	private String avatar;
 
 
 	public void setUserId(String userId) {
@@ -173,6 +167,10 @@ public class UserInfo implements Serializable {
 		this.theme = theme;
 	}
 
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
 	public String getUserId() {
 		return this.userId;
 	}
@@ -237,8 +235,12 @@ public class UserInfo implements Serializable {
 		return this.theme;
 	}
 
+	public String getAvatar() {
+		return this.avatar;
+	}
+
 	@Override
 	public String toString() {
-		return "用户id:" + (userId == null ? "null" : userId) + ",昵称:" + (nickName == null ? "null" : nickName) + ",邮箱:" + (email == null ? "null" : email) + ",密码:" + (password == null ? "null" : password) + ",0:女 1:男 2:未知:" + (sex == null ? "null" : sex) + ",出生日期:" + (birthday == null ? "null" : birthday) + ",学校:" + (school == null ? "null" : school) + ",个人简介:" + (personIntroduction == null ? "null" : personIntroduction) + ",加入时间:" + (joinTime == null ? "null" : joinTime) + ",最后登录时间:" + (lastLoginTime == null ? "null" : lastLoginTime) + ",最后登录ip:" + (lastLoginIp == null ? "null" : lastLoginIp) + ",0:禁用 1:正常:" + (status == null ? "null" : status) + ",空间公告:" + (noticeInfo == null ? "null" : noticeInfo) + ",硬币总数量:" + (totalCoinCount == null ? "null" : totalCoinCount) + ",当前硬币数:" + (currentCoinCount == null ? "null" : currentCoinCount) + ",主题:" + (theme == null ? "null" : theme);
+		return "用户id:" + (userId == null ? "null" : userId) + ",昵称:" + (nickName == null ? "null" : nickName) + ",邮箱:" + (email == null ? "null" : email) + ",密码:" + (password == null ? "null" : password) + ",0:女 1:男 2:未知:" + (sex == null ? "null" : sex) + ",出生日期:" + (birthday == null ? "null" : birthday) + ",学校:" + (school == null ? "null" : school) + ",个人简介:" + (personIntroduction == null ? "null" : personIntroduction) + ",加入时间:" + (joinTime == null ? "null" : joinTime) + ",最后登录时间:" + (lastLoginTime == null ? "null" : lastLoginTime) + ",最后登录ip:" + (lastLoginIp == null ? "null" : lastLoginIp) + ",0:禁用 1:正常:" + (status == null ? "null" : status) + ",空间公告:" + (noticeInfo == null ? "null" : noticeInfo) + ",硬币总数量:" + (totalCoinCount == null ? "null" : totalCoinCount) + ",当前硬币数:" + (currentCoinCount == null ? "null" : currentCoinCount) + ",主题:" + (theme == null ? "null" : theme) + ",头像:" + (avatar == null ? "null" : avatar);
 	}
 }

@@ -137,4 +137,13 @@ public class RedisComponent {
     public VideoInfoFilePost getFileFromTransferQueue() {
         return (VideoInfoFilePost) redisUtils.rpop(Constants.REDIS_KEY_QUEUE_TRANSFER);
     }
+
+    public List<String> getDelFileList(String videoId) {
+        List<String> filePathList = redisUtils.getQueueList(Constants.REDIS_KEY_FILE_DEL + videoId);
+        return filePathList;
+    }
+
+    public void cleanDelFileList(String videoId) {
+        redisUtils.delete(Constants.REDIS_KEY_FILE_DEL + videoId);
+    }
 }

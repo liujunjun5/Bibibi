@@ -107,6 +107,58 @@ public class VideoInfoPostQuery extends BaseQuery{
 	 */
 	private Integer duration;
 
+	/**
+	 * 排除在外的状态
+	 */
+	private Integer[] excludeStatusArray;
+
+	/**
+	 * 是否查询数量
+	 */
+	private Boolean queryCountInfo;
+
+	/**
+	 *
+	 */
+	private Integer recommendType;
+
+	/**
+	 * 是否查询用户信息
+	 */
+	private Boolean queryUserInfo;
+
+	public Boolean getQueryUserInfo() {
+		return queryUserInfo;
+	}
+
+	public void setQueryUserInfo(Boolean queryUserInfo) {
+		this.queryUserInfo = queryUserInfo;
+	}
+
+	public Integer getRecommendType() {
+		return recommendType;
+	}
+
+	public void setRecommendType(Integer recommendType) {
+		this.recommendType = recommendType;
+	}
+
+	public Integer[] getExcludeStatusArray() {
+		return excludeStatusArray;
+	}
+
+	public void setExcludeStatusArray(Integer[] excludeStatusArray) {
+		this.excludeStatusArray = excludeStatusArray;
+	}
+
+	public Boolean getQueryCountInfo() {
+		return queryCountInfo;
+	}
+
+	public void setQueryCountInfo(Boolean queryCountInfo) {
+		this.queryCountInfo = queryCountInfo;
+	}
+
 	public void setVideoIdFuzzy(String videoIdFuzzy) {
 		this.videoIdFuzzy = videoIdFuzzy;
 	}

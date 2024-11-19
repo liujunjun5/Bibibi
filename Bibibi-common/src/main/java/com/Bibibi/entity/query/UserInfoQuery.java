@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * @Description:用户信息查询对象
- * @date:2024-11-03
+ * @date:2024-11-18
  * @author: liujun
  */
 public class UserInfoQuery extends BaseQuery{
@@ -114,6 +114,13 @@ public class UserInfoQuery extends BaseQuery{
 	 */
 	private Integer theme;
 
+	/**
+	 * 头像
+	 */
+	private String avatar;
+
+	private String avatarFuzzy;
+
 	public void setUserIdFuzzy(String userIdFuzzy) {
 		this.userIdFuzzy = userIdFuzzy;
 	}
@@ -216,6 +223,14 @@ public class UserInfoQuery extends BaseQuery{
 
 	public String getNoticeInfoFuzzy() {
 		return this.noticeInfoFuzzy;
+	}
+
+	public void setAvatarFuzzy(String avatarFuzzy) {
+		this.avatarFuzzy = avatarFuzzy;
+	}
+
+	public String getAvatarFuzzy() {
+		return this.avatarFuzzy;
 	}
 
 	public void setUserId(String userId) {
@@ -344,6 +359,14 @@ public class UserInfoQuery extends BaseQuery{
 
 	public Integer getTheme() {
 		return this.theme;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getAvatar() {
+		return this.avatar;
 	}
 
 }

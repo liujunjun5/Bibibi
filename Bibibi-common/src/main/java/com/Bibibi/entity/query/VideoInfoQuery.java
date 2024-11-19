@@ -146,6 +146,51 @@ public class VideoInfoQuery extends BaseQuery{
 
 	private String lastPlayTimeEnd;
 
+	/**
+	 * 查询用户信息
+	 */
+	private Boolean queryUserInfo;
+
+	private String[] videoIdArray;
+
+	private String[] excludeVideoIdArray;
+
+	private Integer categoryIdOrPCategoryId;
+
+	private Integer lastPlayHour;
+
+	public String[] getVideoIdArray() {
+		return videoIdArray;
+	}
+
+	public void setVideoIdArray(String[] videoIdArray) {
+		this.videoIdArray = videoIdArray;
+	}
+
+	public String[] getExcludeVideoIdArray() {
+		return excludeVideoIdArray;
+	}
+
+	public void setExcludeVideoIdArray(String[] excludeVideoIdArray) {
+		this.excludeVideoIdArray = excludeVideoIdArray;
+	}
+
+	public Integer getCategoryIdOrPCategoryId() {
+		return categoryIdOrPCategoryId;
+	}
+
+	public void setCategoryIdOrPCategoryId(Integer categoryIdOrPCategoryId) {
+		this.categoryIdOrPCategoryId = categoryIdOrPCategoryId;
+	}
+
+	public Integer getLastPlayHour() {
+		return lastPlayHour;
+	}
+
+	public void setLastPlayHour(Integer lastPlayHour) {
+		this.lastPlayHour = lastPlayHour;
+	}
+
 	public void setVideoIdFuzzy(String videoIdFuzzy) {
 		this.videoIdFuzzy = videoIdFuzzy;
 	}
@@ -434,4 +479,11 @@ public class VideoInfoQuery extends BaseQuery{
 		return this.lastPlayTime;
 	}
 
+	public Boolean getQueryUserInfo() {
+		return queryUserInfo;
+	}
+
+	public void setQueryUserInfo(Boolean queryUserInfo) {
+		this.queryUserInfo = queryUserInfo;
+	}
 }

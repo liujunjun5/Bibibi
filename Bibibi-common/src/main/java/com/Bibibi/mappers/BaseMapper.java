@@ -22,5 +22,11 @@ public interface BaseMapper<T, P> {
 
     //根据集合查询数量
     Integer selectCount(@Param("query") P p);
-    
+
+    Integer updateByParam(@Param("bean") T t,@Param("query") P p);
+
+    /**
+     * deleteByParam:(多条件删除)
+     */
+    Integer deleteByParam(@Param("query") P p);
 }

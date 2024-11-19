@@ -107,7 +107,7 @@ public class AccountController extends ABaseController {
         }
     }
 
-    @RequestMapping("/autologin")
+    @RequestMapping("/autoLogin")
     public ResponseVO autoLogin(HttpServletResponse response) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
         if (tokenUserInfoDto == null) {

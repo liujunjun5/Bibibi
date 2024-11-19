@@ -3,7 +3,11 @@ package com.Bibibi.web.controller;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.po.VideoInfoPost;
+import com.Bibibi.entity.query.VideoInfoPostQuery;
+import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.entity.vo.ResponseVO;
+import com.Bibibi.entity.vo.VideoStatusCountInfoVO;
+import com.Bibibi.enums.VideoStatusEnum;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.service.VideoInfoFilePostService;
 import com.Bibibi.service.VideoInfoPostService;
@@ -67,5 +71,53 @@ public class UcenterVideoPostController extends ABaseController {
 
         videoInfoPostService.saveVideoInfo(videoInfo, filePostList);
         return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("/loadVideoList")
+    public ResponseVO loadVideoPost(Integer status, Integer pageNo, String videoNameFuzzy) {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+
+        VideoInfoPostQuery videoInfoQuery = new VideoInfoPostQuery();
+        videoInfoQuery.setUserId(tokenUserInfoDto.getUserId());
+        videoInfoQuery.setPageNo(pageNo);
+        videoInfoQuery.setOrderBy("create_time desc");
+
+        if (status != null) {
+            if (status == -1) {
+                videoInfoQuery.setExcludeStatusArray(new Integer[]{VideoStatusEnum.STATUS3.getStatus(), VideoStatusEnum.STATUS4.getStatus()});
+            } else {
+                videoInfoQuery.setStatus(status);
+            }
+        }
+        videoInfoQuery.setVideoNameFuzzy(videoNameFuzzy);
+        videoInfoQuery.setQueryCountInfo(true);
+        PaginationResultVO resultVO = videoInfoPostService.findByPage(videoInfoQuery);
+
+        return getSuccessResponseVO(resultVO);
+    }
+
+    @RequestMapping("/getVideoCountInfo")
+    public ResponseVO getVideoCountInfo() {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+
+        VideoInfoPostQuery videoInfoPostQuery = new VideoInfoPostQuery();
+        videoInfoPostQuery.setUserId(tokenUserInfoDto.getUserId());
+
+        videoInfoPostQuery.setStatus(VideoStatusEnum.STATUS3.getStatus());
+        Integer auditPassCount = videoInfoPostService.findCountByParam(videoInfoPostQuery);
+
+        videoInfoPostQuery.setStatus(VideoStatusEnum.STATUS4.getStatus());
+        Integer auditFailCount = videoInfoPostService.findCountByParam(videoInfoPostQuery);
+
+        videoInfoPostQuery.setStatus(null);
+        videoInfoPostQuery.setExcludeStatusArray(new Integer[]{VideoStatusEnum.STATUS3.getStatus(), VideoStatusEnum.STATUS4.getStatus()});
+        Integer inProgress = videoInfoPostService.findCountByParam(videoInfoPostQuery);
+
+        VideoStatusCountInfoVO countInfoVO =  new VideoStatusCountInfoVO();
+        countInfoVO.setAuditPassCount(auditPassCount);
+        countInfoVO.setAuditFailCount(auditFailCount);
+        countInfoVO.setInProgress(inProgress);
+
+        return getSuccessResponseVO(countInfoVO);
     }
 }

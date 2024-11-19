@@ -66,6 +66,12 @@ public class FFmpegUtils {
      * @param videoFilePath
      * @throws BusinessException
      */
+//    public void convertHevc2Mp4(String newFileName, String videoFilePath) throws BusinessException {
+//        String CMD_HEVC_264 = "ffmpeg -i %s -c:v libx264 -crf 20 %s";
+//        String cmd = String.format(CMD_HEVC_264, newFileName, videoFilePath);
+//        ProcessUtils.executeCommand(cmd, appConfig.getShowFFmpegLog());
+//    }
+
     public void convertHevc2Mp4(String newFileName, String videoFilePath) throws BusinessException {
         String CMD_HEVC_264 = "ffmpeg -i %s -c:v libx264 -crf 20 %s";
         String cmd = String.format(CMD_HEVC_264, newFileName, videoFilePath);

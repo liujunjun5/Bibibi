@@ -1,17 +1,21 @@
 package com.Bibibi.entity.po;
 
-import java.io.Serializable;
-import java.util.Date;
+import com.Bibibi.enums.DateTimePatternEnum;
+import com.Bibibi.enums.VideoStatusEnum;
+import com.Bibibi.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.io.Serializable;
+import java.util.Date;
+
 
 /**
- * @Description:视频信息
- * @date:2024-11-11
- * @author: liujun
+ * 视频信息
  */
-public class VideoInfoPost implements Serializable {
+public class VideoInfoPost extends VideoInfo implements Serializable {
+
+
 	/**
 	 * 视频ID
 	 */
@@ -59,7 +63,6 @@ public class VideoInfoPost implements Serializable {
 	/**
 	 * 0:转码中 1转码失败 2:待审核 3:审核成功 4:审核失败
 	 */
-	@JsonIgnore
 	private Integer status;
 
 	/**
@@ -92,121 +95,131 @@ public class VideoInfoPost implements Serializable {
 	 */
 	private Integer duration;
 
+	private String statusName;
+
+	public String getStatusName() {
+		VideoStatusEnum statusEnum = VideoStatusEnum.getByStatus(status);
+		return statusEnum == null ? "" : statusEnum.getDesc();
+	}
+
+	public void setStatusName(String statusName) {
+		this.statusName = statusName;
+	}
 
 	public void setVideoId(String videoId) {
 		this.videoId = videoId;
-	}
-
-	public void setVideoCover(String videoCover) {
-		this.videoCover = videoCover;
-	}
-
-	public void setVideoName(String videoName) {
-		this.videoName = videoName;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
-	public void setLastUpdateTime(Date lastUpdateTime) {
-		this.lastUpdateTime = lastUpdateTime;
-	}
-
-	public void setPCategoryId(Integer pCategoryId) {
-		this.pCategoryId = pCategoryId;
-	}
-
-	public void setCategoryId(Integer categoryId) {
-		this.categoryId = categoryId;
-	}
-
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-
-	public void setPostType(Integer postType) {
-		this.postType = postType;
-	}
-
-	public void setOriginInfo(String originInfo) {
-		this.originInfo = originInfo;
-	}
-
-	public void setTags(String tags) {
-		this.tags = tags;
-	}
-
-	public void setIntroduction(String introduction) {
-		this.introduction = introduction;
-	}
-
-	public void setInteraction(String interaction) {
-		this.interaction = interaction;
-	}
-
-	public void setDuration(Integer duration) {
-		this.duration = duration;
 	}
 
 	public String getVideoId() {
 		return this.videoId;
 	}
 
+	public void setVideoCover(String videoCover) {
+		this.videoCover = videoCover;
+	}
+
 	public String getVideoCover() {
 		return this.videoCover;
+	}
+
+	public void setVideoName(String videoName) {
+		this.videoName = videoName;
 	}
 
 	public String getVideoName() {
 		return this.videoName;
 	}
 
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
 	public String getUserId() {
 		return this.userId;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 
 	public Date getCreateTime() {
 		return this.createTime;
 	}
 
+	public void setLastUpdateTime(Date lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
+	}
+
 	public Date getLastUpdateTime() {
 		return this.lastUpdateTime;
+	}
+
+	public void setPCategoryId(Integer pCategoryId) {
+		this.pCategoryId = pCategoryId;
 	}
 
 	public Integer getPCategoryId() {
 		return this.pCategoryId;
 	}
 
+	public void setCategoryId(Integer categoryId) {
+		this.categoryId = categoryId;
+	}
+
 	public Integer getCategoryId() {
 		return this.categoryId;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 	public Integer getStatus() {
 		return this.status;
 	}
 
+	public void setPostType(Integer postType) {
+		this.postType = postType;
+	}
+
 	public Integer getPostType() {
 		return this.postType;
+	}
+
+	public void setOriginInfo(String originInfo) {
+		this.originInfo = originInfo;
 	}
 
 	public String getOriginInfo() {
 		return this.originInfo;
 	}
 
+	public void setTags(String tags) {
+		this.tags = tags;
+	}
+
 	public String getTags() {
 		return this.tags;
+	}
+
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
 	}
 
 	public String getIntroduction() {
 		return this.introduction;
 	}
 
+	public void setInteraction(String interaction) {
+		this.interaction = interaction;
+	}
+
 	public String getInteraction() {
 		return this.interaction;
+	}
+
+	public void setDuration(Integer duration) {
+		this.duration = duration;
 	}
 
 	public Integer getDuration() {
@@ -215,6 +228,11 @@ public class VideoInfoPost implements Serializable {
 
 	@Override
 	public String toString() {
-		return "视频ID:" + (videoId == null ? "null" : videoId) + ",视频封面:" + (videoCover == null ? "null" : videoCover) + ",视频名称:" + (videoName == null ? "null" : videoName) + ",用户ID:" + (userId == null ? "null" : userId) + ",创建时间:" + (createTime == null ? "null" : createTime) + ",最后更新时间:" + (lastUpdateTime == null ? "null" : lastUpdateTime) + ",父级分类ID:" + (pCategoryId == null ? "null" : pCategoryId) + ",分类ID:" + (categoryId == null ? "null" : categoryId) + ",0:转码中 1转码失败 2:待审核 3:审核成功 4:审核失败:" + (status == null ? "null" : status) + ",0:自制作  1:转载:" + (postType == null ? "null" : postType) + ",原资源说明:" + (originInfo == null ? "null" : originInfo) + ",标签:" + (tags == null ? "null" : tags) + ",简介:" + (introduction == null ? "null" : introduction) + ",互动设置:" + (interaction == null ? "null" : interaction) + ",持续时间（秒）:" + (duration == null ? "null" : duration);
+		return "视频ID:" + (videoId == null ? "空" : videoId) + "，视频封面:" + (videoCover == null ? "空" : videoCover) + "，视频名称:" + (videoName == null ? "空" : videoName) + "，用户ID:" + (userId == null ?
+				"空" : userId) + "，创建时间:" + (createTime == null ? "空" : DateUtils.format(
+				createTime,
+				DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern())) + "，最后更新时间:" + (lastUpdateTime == null ? "空" : DateUtils.format(lastUpdateTime,
+				DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern())) + "，父级分类ID:" + (pCategoryId == null ? "空" : pCategoryId) + "，分类ID:" + (categoryId == null ? "空" : categoryId) + "，0:转码中 1转码失败 " +
+				"2:待审核 3:审核成功 4:审核失败:" + (status == null ? "空" : status) + "，0:自制作  1:转载:" + (postType == null ? "空" : postType) + "，原资源说明:" + (originInfo == null ? "空" : originInfo) + "，标签:" + (tags == null ? "空" : tags) + "，简介:" + (introduction == null ? "空" : introduction) + "，互动设置:" + (interaction == null ? "空" : interaction) + "，持续时间（秒）:" + (duration == null ? "空" : duration);
 	}
 }
