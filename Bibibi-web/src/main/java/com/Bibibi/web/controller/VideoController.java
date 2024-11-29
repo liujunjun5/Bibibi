@@ -1,16 +1,21 @@
 package com.Bibibi.web.controller;
 
 import com.Bibibi.component.RedisComponent;
+import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.po.UserAction;
 import com.Bibibi.entity.po.VideoInfo;
 import com.Bibibi.entity.po.VideoInfoFile;
+import com.Bibibi.entity.query.UserActionQuery;
 import com.Bibibi.entity.query.VideoInfoFileQuery;
 import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.entity.vo.VideoInfoResultVo;
 import com.Bibibi.enums.ResponseCodeEnum;
+import com.Bibibi.enums.UserActionTypeEnum;
 import com.Bibibi.enums.VideoRecommendTypeEnum;
 import com.Bibibi.exception.BusinessException;
+import com.Bibibi.service.UserActionService;
 import com.Bibibi.service.VideoInfoFileService;
 import com.Bibibi.service.VideoInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +39,9 @@ public class VideoController extends ABaseController{
 
     @Resource
     private VideoInfoFileService videoInfoFileService;
+
+    @Resource
+    private UserActionService userActionService;
 
     @Resource
     private RedisComponent redisComponent;
@@ -76,8 +84,26 @@ public class VideoController extends ABaseController{
         if (videoInfo == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_404);
         }
-        //TODO 获取用户行为 点赞、投币、收藏
+
+        TokenUserInfoDto userInfoDto = getTokenUserInfoDto();
+        List<UserAction> userActionList = new ArrayList<>();
+
+        if (userInfoDto != null) {
+            UserActionQuery actionQuery = new UserActionQuery();
+            actionQuery.setVideoId(videoId);
+            actionQuery.setUserId(userInfoDto.getUserId());
+            actionQuery.setActionTypeArray(new Integer[]{UserActionTypeEnum.VIDEO_LIKE.getType(), UserActionTypeEnum.VIDEO_COLLECT.getType(),
+                    UserActionTypeEnum.VIDEO_COIN.getType(),});
+            userActionList = userActionService.findListByParam(actionQuery);
+        }
+
         VideoInfoResultVo resultVo = new VideoInfoResultVo(videoInfo, new ArrayList<>());
+        resultVo.setUserActionList(userActionList);
         return getSuccessResponseVO(resultVo);
+    }
+
+    @RequestMapping("/reportVideoPlayOnline")
+    public ResponseVO reportVideoPlayOnline(@NotEmpty String fileId, @NotEmpty String deviceId) {
+        return getSuccessResponseVO(redisComponent.reportVideoPlayOnline(fileId, deviceId));
     }
 }

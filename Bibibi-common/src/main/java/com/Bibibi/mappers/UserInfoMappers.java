@@ -56,4 +56,5 @@ public interface UserInfoMappers<T, P> extends BaseMapper {
      */
     Integer deleteByNickName(@Param("nickName") String nickName);
 
+    Integer updateCoinCountInfo(String userId, Integer changeCount);
 }

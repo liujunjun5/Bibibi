@@ -11,13 +11,9 @@ import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.po.VideoInfoPost;
 import com.Bibibi.entity.query.*;
 import com.Bibibi.entity.vo.PaginationResultVO;
-import com.Bibibi.entity.vo.VideoStatusCountInfoVO;
 import com.Bibibi.enums.*;
 import com.Bibibi.exception.BusinessException;
-import com.Bibibi.mappers.VideoInfoFileMappers;
-import com.Bibibi.mappers.VideoInfoFilePostMappers;
-import com.Bibibi.mappers.VideoInfoMappers;
-import com.Bibibi.mappers.VideoInfoPostMappers;
+import com.Bibibi.mappers.*;
 import com.Bibibi.service.VideoInfoPostService;
 import com.Bibibi.utils.CopyTools;
 import com.Bibibi.utils.FFmpegUtils;
@@ -61,6 +57,8 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	@Resource
 	private VideoInfoFileMappers<VideoInfoFile, VideoInfoFileQuery> videoInfoFileMappers;
 
+	@Resource
+	private UserInfoMappers userInfoMappers;
 
 	@Resource
 	private AppConfig appConfig;
@@ -342,6 +340,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 		VideoInfoPost videoInfoPost = new VideoInfoPost();
 		videoInfoPost.setStatus(status);
 
+		//将待审核的视频状态改变？审核通过否？
 		VideoInfoPostQuery videoInfoPostQuery = new VideoInfoPostQuery();
 		videoInfoPostQuery.setStatus(VideoStatusEnum.STATUS2.getStatus());
 		videoInfoPostQuery.setVideoId(videoId);
@@ -349,51 +348,50 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 		if (audioCount== 0) {
 			throw new BusinessException("审核失败，请稍后重试");
 		}
+		if (status == 3) {
+			/**
+			 * 更新视频状态
+			 */
+			VideoInfoFilePost videoInfoFilePost = new VideoInfoFilePost();
+			videoInfoFilePost.setUpdateType(VideoFileUpdateTypeEnum.NO_UPDATE.getStatus());
 
-		/**
-		 * 更新视频状态
-		 */
-		VideoInfoFilePost videoInfoFilePost = new VideoInfoFilePost();
-		videoInfoFilePost.setUpdateType(VideoFileUpdateTypeEnum.NO_UPDATE.getStatus());
+			VideoInfoFilePostQuery filePostQuery = new VideoInfoFilePostQuery();
+			filePostQuery.setVideoId(videoId);
+			this.videoInfoFilePostMappers.updateByParam(videoInfoFilePost, filePostQuery);
 
-		VideoInfoFilePostQuery filePostQuery = new VideoInfoFilePostQuery();
-		filePostQuery.setVideoId(videoId);
-		this.videoInfoFilePostMappers.updateByParam(videoInfoFilePost, filePostQuery);
+			VideoInfoPost infoPost = this.videoInfoPostMappers.selectByVideoId(videoId);
 
-		VideoInfoPost infoPost = this.videoInfoPostMappers.selectByVideoId(videoId);
+			/**
+			 * 第一次发视频的话，增加积分
+			 */
+			VideoInfo dbVideoInfo = this.videoInfoMappers.selectByVideoId(videoId);
+			if (dbVideoInfo == null) {
+				SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
+				userInfoMappers.updateCoinCountInfo(infoPost.getUserId(), sysSettingDto.getPostVideoCoinCount());
+			}
 
-		/**
-		 * 第一次发视频的话，增加积分
-		 */
-		VideoInfo dbVideoInfo = this.videoInfoMappers.selectByVideoId(videoId);
-		if (dbVideoInfo==null){
-			SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
-			//TODO 增加硬币
+			/**
+			 * 将发布信息更新到正式表信息
+			 */
+			VideoInfo videoInfo = CopyTools.copy(infoPost, VideoInfo.class);
+//		Integer id = infoPost.getPCategoryId();
+//		videoInfo.setPCategoryId(id);
+			this.videoInfoMappers.insertOrUpdate(videoInfo);
+
+			/**
+			 * 更新视频文件信息 --- 先删除原来的，变为最新的
+			 */
+			VideoInfoFileQuery videoInfoFileQuery = new VideoInfoFileQuery();
+			videoInfoFileQuery.setVideoId(videoId);
+			this.videoInfoFileMappers.deleteByParam(videoInfoFileQuery);
+
+			VideoInfoFilePostQuery videoInfoFilePostQuery = new VideoInfoFilePostQuery();
+			videoInfoFilePostQuery.setVideoId(videoId);
+			List<VideoInfoFilePost> videoInfoFilePostList = this.videoInfoFilePostMappers.selectList(videoInfoFilePostQuery);
+
+			List<VideoInfoFile> videoInfoFileList = CopyTools.copyList(videoInfoFilePostList, VideoInfoFile.class);
+			this.videoInfoFileMappers.insertBatch(videoInfoFileList);
 		}
-
-		/**
-		 * 将发布信息更新到正式表信息
-		 */
-		VideoInfo videoInfo = CopyTools.copy(infoPost, VideoInfo.class);
-		Integer id = infoPost.getPCategoryId();
-		videoInfo.setPCategoryId(id);
-//		videoInfo.setPCategoryId(infoPost.getPCategoryId());
-		this.videoInfoMappers.insertOrUpdate(videoInfo);
-
-		/**
-		 * 更新视频文件信息 --- 先删除原来的，变为最新的
-		 */
-		VideoInfoFileQuery videoInfoFileQuery = new VideoInfoFileQuery();
-		videoInfoFileQuery.setVideoId(videoId);
-		this.videoInfoFileMappers.deleteByParam(videoInfoFileQuery);
-
-		VideoInfoFilePostQuery videoInfoFilePostQuery = new VideoInfoFilePostQuery();
-		videoInfoFilePostQuery.setVideoId(videoId);
-		List<VideoInfoFilePost> videoInfoFilePostList = this.videoInfoFilePostMappers.selectList(videoInfoFilePostQuery);
-
-		List<VideoInfoFile> videoInfoFileList = CopyTools.copyList(videoInfoFilePostList, VideoInfoFile.class);
-		this.videoInfoFileMappers.insertBatch(videoInfoFileList);
-
 		/**
 		 * 删除消息队列中的文件，上一批次添加进来的，用户删除的
 		 */

@@ -13,6 +13,7 @@ public class Constants {
 
     public static final String REGEX_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,}$";
 
+    public static final Integer REDIS_KEY_EXPIRES_ONE_SECONDS = 1000;
     public static final Integer REDIS_KEY_EXPIRES_ONE_MIN = 60000;
     public static final Integer REDIS_KEY_EXPIRES_ONE_DAY = REDIS_KEY_EXPIRES_ONE_MIN * 60 * 24;
     public static final Integer TIME_SECONDS_DAY = REDIS_KEY_EXPIRES_ONE_DAY / 1000;
@@ -42,5 +43,11 @@ public class Constants {
     public static final String VIDEO_CODE_TEMP_FILE_SUFFIX = "_temp";
     public static final String TS_NAME = "index.ts";
     public static final String M3U8_NAME = "index.m3u8";
+
+    //视频在线
+    public static final String REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX = REDIS_KEY_PREFIX + "video:play:online";
+    public static final String REDIS_KEY_VIDEO_PLAY_COUNT_ONLINE = REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX + "count:%s";
+    public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX = "user:";
+    public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER = REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX + REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX + "%s:%s";
 
 }

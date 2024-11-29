@@ -39,7 +39,7 @@ mybatis:
     map-underscore-to-camel-case: true
 
 project:
-  folder: d:/DESKTOP/Java/Bibibi/
+  folder: d:/DESKTOP/
 log:
   root:
     level: debug

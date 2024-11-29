@@ -22,7 +22,8 @@ public class FFmpegUtils {
      * @throws BusinessException
      */
     public void createImageThumbnail(String filePath) throws BusinessException {
-        String CMD = "ffmpeg -i \"%s\" -vf scale=200:-1 \"%\"";
+        String CMD = "ffmpeg -i \"%s\" -vf scale=200:-1 \"%s\"";
+//        String CMD1 = "ffmpeg -i \"%s\" -vf scale=200:-1 \"%s\"";
         CMD = String.format(CMD, filePath, filePath + Constants.IMAGE_Thumbnail_SUFFIX);
         ProcessUtils.executeCommand(CMD, appConfig.getShowFFmpegLog());
     }
