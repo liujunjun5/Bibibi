@@ -17,6 +17,7 @@ public class Constants {
     public static final Integer REDIS_KEY_EXPIRES_ONE_MIN = 60000;
     public static final Integer REDIS_KEY_EXPIRES_ONE_DAY = REDIS_KEY_EXPIRES_ONE_MIN * 60 * 24;
     public static final Integer TIME_SECONDS_DAY = REDIS_KEY_EXPIRES_ONE_DAY / 1000;
+    public static final Integer UPDATE_NICK_NAME_COIN = 5;
 
     public static final String REDIS_KEY_PREFIX = "Bibibi:";
     public static final String REDIS_KEY_CHECK_CODE = REDIS_KEY_PREFIX + "checkCode:";
@@ -49,5 +50,6 @@ public class Constants {
     public static final String REDIS_KEY_VIDEO_PLAY_COUNT_ONLINE = REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX + "count:%s";
     public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX = "user:";
     public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER = REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX + REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX + "%s:%s";
+
 
 }

@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * @Description:用户信息Service
- * @date:2024-11-03
+ * @Description: 用户信息Service
+ * @date: 2024-11-03
  * @author: liujun
  */
 public interface UserInfoService {
@@ -101,8 +101,10 @@ public interface UserInfoService {
 
     /**
      * 用户登录
-     *
-     * @return
      */
     TokenUserInfoDto login(HttpServletRequest request, String email, String password, String ip) throws BusinessException;
+
+    UserInfo getUserDetailInfo(String currentUserId, String userId) throws BusinessException;
+
+    void updateUserInfo(UserInfo userInfo, TokenUserInfoDto tokenUserInfoDto) throws BusinessException;
 }

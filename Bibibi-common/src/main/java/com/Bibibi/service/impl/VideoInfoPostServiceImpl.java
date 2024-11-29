@@ -414,7 +414,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 		/**
 		 * 保存信息到es
 		 */
-		//TODO
+		//TODO 保存信息到es
 	}
 
 	private void convertVideo2Ts(String completeVideo) throws BusinessException {

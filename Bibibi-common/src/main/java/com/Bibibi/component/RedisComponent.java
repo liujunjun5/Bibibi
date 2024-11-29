@@ -164,4 +164,8 @@ public class RedisComponent {
     public void decrementPlayOnlineCount(String key) {
         redisUtils.decrement(key);
     }
+
+    public void updateTokenInfo(TokenUserInfoDto tokenUserInfoDto) {
+        redisUtils.setex(Constants.REDIS_KEY_TOKEN_WEB + tokenUserInfoDto.getToken(), tokenUserInfoDto, Constants.REDIS_KEY_EXPIRES_ONE_DAY * 7);
+    }
 }

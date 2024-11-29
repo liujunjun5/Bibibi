@@ -8,6 +8,7 @@ import com.Bibibi.entity.query.SimplePage;
 import com.Bibibi.entity.query.UserInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
+import com.Bibibi.enums.ResponseCodeEnum;
 import com.Bibibi.enums.UserSexEnum;
 import com.Bibibi.enums.UserStatusEnum;
 import com.Bibibi.exception.BusinessException;
@@ -15,6 +16,7 @@ import com.Bibibi.mappers.UserInfoMappers;
 import com.Bibibi.service.UserInfoService;
 import com.Bibibi.utils.CopyTools;
 import com.Bibibi.utils.StringTools;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private RedisComponent RedisComponent;
+
     @Autowired
     private RedisComponent redisComponent;
 
@@ -218,5 +221,52 @@ public class UserInfoServiceImpl implements UserInfoService {
         redisComponent.saveTokenInfo(tokenUserInfoDto);
 
         return tokenUserInfoDto;
+    }
+
+    /**
+     * @param currentUserId
+     * @param userId
+     * @return
+     */
+    @Override
+    public UserInfo getUserDetailInfo(String currentUserId, String userId) throws BusinessException {
+        UserInfo userInfo = getByUserId(userId);
+        if (userInfo==null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_404);
+        }
+        //TODO 粉絲相關
+        return userInfo;
+    }
+
+    /**
+     * @param userInfo
+     * @param tokenUserInfoDto
+     */
+    @Override
+    public void updateUserInfo(UserInfo userInfo, TokenUserInfoDto tokenUserInfoDto) throws BusinessException {
+        UserInfo dbInfo = this.userInfoMappers.selectByUserId(userInfo.getUserId());
+        if (!dbInfo.getNickName().equals(userInfo.getNickName())&&dbInfo.getCurrentCoinCount()<Constants.UPDATE_NICK_NAME_COIN) {
+            throw new BusinessException("硬幣不足，無法修改昵稱");
+        }
+        if (!dbInfo.getNickName().equals(userInfo.getNickName())){
+            Integer count = this.userInfoMappers.updateCoinCountInfo(userInfo.getUserId(), -Constants.UPDATE_NICK_NAME_COIN);
+            if (count==0) {
+                throw new BusinessException("硬幣不足，無法修改昵稱");
+            }
+        }
+        this.userInfoMappers.updateByUserId(userInfo, userInfo.getUserId());
+
+        Boolean updateTokenInfo = false;
+        if (!userInfo.getAvatar().equals(tokenUserInfoDto.getAvatar())) {
+            tokenUserInfoDto.setAvatar(userInfo.getAvatar());
+            updateTokenInfo = true;
+        }
+        if (!tokenUserInfoDto.getNickName().equals(userInfo.getNickName())) {
+            tokenUserInfoDto.setNickName(userInfo.getNickName());
+            updateTokenInfo = true;
+        }
+        if (updateTokenInfo) {
+            redisComponent.updateTokenInfo(tokenUserInfoDto);
+        }
     }
 }
