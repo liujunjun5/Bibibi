@@ -1,15 +1,22 @@
 package com.Bibibi.service.impl;
 
 import com.Bibibi.entity.po.UserFocus;
+import com.Bibibi.entity.po.UserInfo;
 import com.Bibibi.entity.query.SimplePage;
 import com.Bibibi.entity.query.UserFocusQuery;
+import com.Bibibi.entity.query.UserInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
+import com.Bibibi.enums.ResponseCodeEnum;
+import com.Bibibi.exception.BusinessException;
 import com.Bibibi.mappers.UserFocusMappers;
+import com.Bibibi.mappers.UserInfoMappers;
 import com.Bibibi.service.UserFocusService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,6 +29,9 @@ public class UserFocusServiceImpl implements UserFocusService {
 
 	@Resource
 	private UserFocusMappers<UserFocus, UserFocusQuery> userFocusMappers;
+
+	@Autowired
+    private UserInfoMappers<UserInfo, UserInfoQuery> userInfoMappers;
 
 	/**
 	 * 根据条件查询列表
@@ -99,4 +109,36 @@ public class UserFocusServiceImpl implements UserFocusService {
 		return this.userFocusMappers.deleteByUserIdAndFocusUserId(userId, focusUserId);
 	}
 
+	/**
+	 * @param userId
+	 * @param focusUserId
+	 */
+	@Override
+	public void focusUser(String userId, String focusUserId) throws BusinessException {
+		if (userId.equals(focusUserId)) {
+			throw new BusinessException("不能對自己做此操作");
+		}
+		UserFocus dbInfo = this.userFocusMappers.selectByUserIdAndFocusUserId(userId, focusUserId);
+		if (dbInfo!=null) {
+			return;
+		}
+		UserInfo userInfo = userInfoMappers.selectByUserId(focusUserId);
+		if (userInfo==null) {
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+		UserFocus userFocus = new UserFocus();
+		userFocus.setFocusTime(new Date());
+		userFocus.setUserId(userId);
+		userFocus.setFocusUserId(focusUserId);
+		add(userFocus);
+	}
+
+	/**
+	 * @param userId
+	 * @param focusUserId
+	 */
+	@Override
+	public void cancelFocus(String userId, String focusUserId) {
+		deleteByUserIdAndFocusUserId(userId, focusUserId);
+	}
 }

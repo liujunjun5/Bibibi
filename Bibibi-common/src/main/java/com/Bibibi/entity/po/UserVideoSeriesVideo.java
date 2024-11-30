@@ -1,6 +1,7 @@
 package com.Bibibi.entity.po;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Description:
@@ -28,6 +29,47 @@ public class UserVideoSeriesVideo implements Serializable {
 	 */
 	private Integer sort;
 
+	private String videoCover;
+
+	private String videoName;
+
+	private Integer playCount;
+
+	private Date createTime;
+
+
+
+	public String getVideoCover() {
+		return videoCover;
+	}
+
+	public void setVideoCover(String videoCover) {
+		this.videoCover = videoCover;
+	}
+
+	public String getVideoName() {
+		return videoName;
+	}
+
+	public void setVideoName(String videoName) {
+		this.videoName = videoName;
+	}
+
+	public Integer getPlayCount() {
+		return playCount;
+	}
+
+	public void setPlayCount(Integer playCount) {
+		this.playCount = playCount;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
 
 	public void setSeriesId(Integer seriesId) {
 		this.seriesId = seriesId;

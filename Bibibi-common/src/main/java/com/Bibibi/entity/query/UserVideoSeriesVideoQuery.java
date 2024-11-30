@@ -1,6 +1,8 @@
 package com.Bibibi.entity.query;
 
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 /**
  * @Description:查询对象
  * @date:2024-11-29
@@ -30,6 +32,16 @@ public class UserVideoSeriesVideoQuery extends BaseQuery{
 	 * 排序
 	 */
 	private Integer sort;
+
+	private Boolean queryVideoInfo;
+
+	public Boolean getQueryVideoInfo() {
+		return queryVideoInfo;
+	}
+
+	public void setQueryVideoInfo(Boolean queryVideoInfo) {
+		this.queryVideoInfo = queryVideoInfo;
+	}
 
 	public void setVideoIdFuzzy(String videoIdFuzzy) {
 		this.videoIdFuzzy = videoIdFuzzy;

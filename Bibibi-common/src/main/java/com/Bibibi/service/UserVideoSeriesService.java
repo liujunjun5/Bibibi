@@ -3,6 +3,7 @@ package com.Bibibi.service;
 import com.Bibibi.entity.po.UserVideoSeries;
 import com.Bibibi.entity.query.UserVideoSeriesQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
+import com.Bibibi.exception.BusinessException;
 
 import java.util.List;
 /**
@@ -58,4 +59,17 @@ public interface UserVideoSeriesService {
 	 */
 	Integer deleteBySeriesId(Integer seriesId);
 
+    List<UserVideoSeries> getUserAllSeries(String userId);
+
+	void saveUserAllSeries(UserVideoSeries videoSeries, String videoIds) throws BusinessException;
+
+	void saveSeriesVideo(String userId, Integer seriesId, String videoIds) throws BusinessException;
+
+	void delSeriesVideo(String userId, Integer seriesId, String videoIds);
+
+	void delVideoSeries(String userId, Integer seriesId) throws BusinessException;
+
+	void changeVideoSeriesSort(String userId, String seriesIds);
+
+	List<UserVideoSeries> findListWithVideoList(UserVideoSeriesQuery seriesQuery);
 }

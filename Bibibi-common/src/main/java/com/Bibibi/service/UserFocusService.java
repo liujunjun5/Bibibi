@@ -3,6 +3,7 @@ package com.Bibibi.service;
 import com.Bibibi.entity.po.UserFocus;
 import com.Bibibi.entity.query.UserFocusQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
+import com.Bibibi.exception.BusinessException;
 
 import java.util.List;
 
@@ -59,4 +60,7 @@ public interface UserFocusService {
 	 */
 	Integer deleteByUserIdAndFocusUserId(String userId, String focusUserId);
 
+	void focusUser(String userId, String focusUserId) throws BusinessException;
+
+	void cancelFocus(String userId, String focusUserId);
 }

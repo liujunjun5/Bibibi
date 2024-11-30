@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Description:用户视频序列归档
@@ -44,6 +45,29 @@ public class UserVideoSeries implements Serializable {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date updateTime;
 
+
+	private String cover;
+
+	/**
+	 * 专题下的视频
+	 */
+	private List<VideoInfo> videoInfoList;
+
+	public List<VideoInfo> getVideoInfoList() {
+		return videoInfoList;
+	}
+
+	public void setVideoInfoList(List<VideoInfo> videoInfoList) {
+		this.videoInfoList = videoInfoList;
+	}
+
+	public String getCover() {
+		return cover;
+	}
+
+	public void setCover(String cover) {
+		this.cover = cover;
+	}
 
 	public void setSeriesId(Integer seriesId) {
 		this.seriesId = seriesId;
@@ -93,8 +117,11 @@ public class UserVideoSeries implements Serializable {
 		return this.updateTime;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "列表ID:" + (seriesId == null ? "null" : seriesId) + ",列表名称:" + (seriesName == null ? "null" : seriesName) + ",描述:" + (seriesDescription == null ? "null" : seriesDescription) + ",用户ID:" + (userId == null ? "null" : userId) + ",排序:" + (sort == null ? "null" : sort) + ",更新时间:" + (updateTime == null ? "null" : updateTime);
 	}
+
 }

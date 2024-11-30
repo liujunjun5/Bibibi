@@ -1,10 +1,11 @@
 package com.Bibibi.entity.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.io.Serializable;
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import org.springframework.format.annotation.DateTimeFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @Description:用户信息
@@ -102,6 +103,55 @@ public class UserInfo implements Serializable {
 	 */
 	private String avatar;
 
+	private Integer fansCount;
+
+	private Integer focusCount;
+
+	private Integer likeCount;
+
+	private Integer playCount;
+
+	private Boolean haveFocus;
+
+	public Integer getFansCount() {
+		return fansCount;
+	}
+
+	public void setFansCount(Integer fansCount) {
+		this.fansCount = fansCount;
+	}
+
+	public Integer getFocusCount() {
+		return focusCount;
+	}
+
+	public void setFocusCount(Integer focusCount) {
+		this.focusCount = focusCount;
+	}
+
+	public Integer getLikeCount() {
+		return likeCount;
+	}
+
+	public void setLikeCount(Integer likeCount) {
+		this.likeCount = likeCount;
+	}
+
+	public Integer getPlayCount() {
+		return playCount;
+	}
+
+	public void setPlayCount(Integer playCount) {
+		this.playCount = playCount;
+	}
+
+	public Boolean getHaveFocus() {
+		return haveFocus;
+	}
+
+	public void setHaveFocus(Boolean haveFocus) {
+		this.haveFocus = haveFocus;
+	}
 
 	public void setUserId(String userId) {
 		this.userId = userId;

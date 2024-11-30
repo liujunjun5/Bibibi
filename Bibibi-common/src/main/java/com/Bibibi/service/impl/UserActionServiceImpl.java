@@ -2,10 +2,12 @@ package com.Bibibi.service.impl;
 
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.UserAction;
+import com.Bibibi.entity.po.UserInfo;
 import com.Bibibi.entity.po.VideoInfo;
 import com.Bibibi.entity.query.SimplePage;
 import com.Bibibi.entity.query.UserActionQuery;
 import com.Bibibi.entity.query.UserInfoQuery;
+import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
 import com.Bibibi.enums.ResponseCodeEnum;
@@ -31,13 +33,13 @@ import java.util.List;
 public class UserActionServiceImpl implements UserActionService {
 
     @Resource
-    private UserInfoMappers userInfoMappers;
+    private UserInfoMappers<UserInfo, UserInfoQuery> userInfoMappers;
 
     @Resource
     private UserActionMappers<UserAction, UserActionQuery> userActionMappers;
 
     @Resource
-    private VideoInfoMappers<VideoInfo, UserInfoQuery> videoInfoMappers;
+    private VideoInfoMappers<VideoInfo, VideoInfoQuery> videoInfoMappers;
 
     /**
      * 根据条件查询列表

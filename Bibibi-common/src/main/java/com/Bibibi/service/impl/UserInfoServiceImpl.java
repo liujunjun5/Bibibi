@@ -3,8 +3,10 @@ package com.Bibibi.service.impl;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.po.UserFocus;
 import com.Bibibi.entity.po.UserInfo;
 import com.Bibibi.entity.query.SimplePage;
+import com.Bibibi.entity.query.UserFocusQuery;
 import com.Bibibi.entity.query.UserInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
@@ -12,16 +14,14 @@ import com.Bibibi.enums.ResponseCodeEnum;
 import com.Bibibi.enums.UserSexEnum;
 import com.Bibibi.enums.UserStatusEnum;
 import com.Bibibi.exception.BusinessException;
+import com.Bibibi.mappers.UserFocusMappers;
 import com.Bibibi.mappers.UserInfoMappers;
 import com.Bibibi.service.UserInfoService;
 import com.Bibibi.utils.CopyTools;
 import com.Bibibi.utils.StringTools;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +40,11 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Resource
     private RedisComponent RedisComponent;
 
-    @Autowired
+    @Resource
     private RedisComponent redisComponent;
+
+    @Resource
+    private UserFocusMappers<UserFocus, UserFocusQuery> userFocusMappers;
 
     /**
      * 根据条件查询列表
@@ -235,6 +238,16 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new BusinessException(ResponseCodeEnum.CODE_404);
         }
         //TODO 粉絲相關
+        Integer focusCount = userFocusMappers.selectFocusCount(userId);
+        Integer fansCount = userFocusMappers.selectFansCount(userId);
+        userInfo.setFocusCount(focusCount);
+        userInfo.setFansCount(fansCount);
+        if (currentUserId == null) {
+            userInfo.setHaveFocus(false);
+        } else {
+            UserFocus userFocus = userFocusMappers.selectByUserIdAndFocusUserId(currentUserId, userId);
+            userInfo.setHaveFocus(userFocus == null ? false : true);
+        }
         return userInfo;
     }
 

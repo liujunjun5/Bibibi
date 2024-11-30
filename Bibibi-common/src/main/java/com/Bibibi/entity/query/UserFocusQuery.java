@@ -23,13 +23,23 @@ public class UserFocusQuery extends BaseQuery{
 	private String focusUserIdFuzzy;
 
 	/**
-	 * 
+	 * 關注事件
 	 */
 	private Date focusTime;
 
 	private String focusTimeStart;
 
 	private String focusTimeEnd;
+
+	private Integer queryType;
+
+	public Integer getQueryType() {
+		return queryType;
+	}
+
+	public void setQueryType(Integer queryType) {
+		this.queryType = queryType;
+	}
 
 	public void setUserIdFuzzy(String userIdFuzzy) {
 		this.userIdFuzzy = userIdFuzzy;
