@@ -156,19 +156,15 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void saveVideoInfo(VideoInfoPost videoInfoPost, List<VideoInfoFilePost> uploadFileList) throws BusinessException {
-		//客户端传来的文件大于系统设置中的最大值
 		if (uploadFileList.size() > redisComponent.getSysSettingDto().getVideoPCount()) {
 			throw new BusinessException(ResponseCodeEnum.CODE_600);
 		}
-		//已经有了视频id，准备做修改
+
 		if (!StringTools.isEmpty(videoInfoPost.getVideoId())) {
-			//获取数据库中的数据
 			VideoInfoPost videoInfoPostDb = this.videoInfoPostMappers.selectByVideoId(videoInfoPost.getVideoId());
-			//客户端传来有视频id，数据库中却不能找到-->错误传参
 			if (videoInfoPostDb == null) {
 				throw new BusinessException(ResponseCodeEnum.CODE_600);
 			}
-			//将要修改的视频信息如果有未审核或者未解码，不支持修改
 			if (ArrayUtils.contains(new Integer[]{VideoStatusEnum.STATUS0.getStatus(), VideoStatusEnum.STATUS2.getStatus()}, videoInfoPostDb.getStatus())) {
 				throw new BusinessException(ResponseCodeEnum.CODE_600);
 			}
@@ -176,10 +172,9 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 		Date curDate = new Date();
 		String videoId = videoInfoPost.getVideoId();
-		List<VideoInfoFilePost> deleteFileList = new ArrayList<>();
+		List<VideoInfoFilePost> deleteFileList = new ArrayList();
 		List<VideoInfoFilePost> addFileList = uploadFileList;
 
-		//没有视频id，准备增加视频
 		if (StringTools.isEmpty(videoId)) {
 			videoId = StringTools.getRandomString(Constants.LENGTH_10);
 			videoInfoPost.setVideoId(videoId);
@@ -187,15 +182,15 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			videoInfoPost.setLastUpdateTime(curDate);
 			videoInfoPost.setStatus(VideoStatusEnum.STATUS0.getStatus());
 			this.videoInfoPostMappers.insert(videoInfoPost);
-		} else {//有了视频id，准备修改视频信息
+		} else {
+			//查询已经存在的视频
 			VideoInfoFilePostQuery fileQuery = new VideoInfoFilePostQuery();
-			//利用双重保险，防止重复，增加安全性
 			fileQuery.setVideoId(videoId);
 			fileQuery.setUserId(videoInfoPost.getUserId());
 			List<VideoInfoFilePost> dbInfoFileList = this.videoInfoFilePostMappers.selectList(fileQuery);
-
-			Map<String, VideoInfoFilePost> uploadFileMap = uploadFileList.stream().collect(Collectors.toMap(item -> item.getUploadId(), Function.identity(), (date1, date2) -> date2));
-
+			Map<String, VideoInfoFilePost> uploadFileMap = uploadFileList.stream().collect(Collectors.toMap(item -> item.getUploadId(), Function.identity(), (data1,
+																																							  data2) -> data2));
+			//删除的文件 -> 数据库中有，uploadFileList没有
 			Boolean updateFileName = false;
 			for (VideoInfoFilePost fileInfo : dbInfoFileList) {
 				VideoInfoFilePost updateFile = uploadFileMap.get(fileInfo.getUploadId());
@@ -205,31 +200,30 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 					updateFileName = true;
 				}
 			}
-
+			//新增的文件  没有fileId就是新增的文件
 			addFileList = uploadFileList.stream().filter(item -> item.getFileId() == null).collect(Collectors.toList());
-
 			videoInfoPost.setLastUpdateTime(curDate);
 
-			//标记是否存在修改，标题、封面、标签、简介任意一项发生改变即存在修改
-			Boolean changeVideoInfo = changeVideoInfo(videoInfoPost);
-			if (addFileList != null && !addFileList.isEmpty()) {
-				//将新增的视频状态设置为未解码
+			//判断视频信息是否有更改
+			Boolean changeVideoInfo = this.changeVideoInfo(videoInfoPost);
+			if (!addFileList.isEmpty()) {
 				videoInfoPost.setStatus(VideoStatusEnum.STATUS0.getStatus());
 			} else if (changeVideoInfo || updateFileName) {
-				//有修改，把状态改为待审核
 				videoInfoPost.setStatus(VideoStatusEnum.STATUS2.getStatus());
 			}
 			this.videoInfoPostMappers.updateByVideoId(videoInfoPost, videoInfoPost.getVideoId());
 		}
 
+		//清除已经删除的数据
 		if (!deleteFileList.isEmpty()) {
-			List<String> delFileList = deleteFileList.stream().map(item -> item.getFileId()).collect(Collectors.toList());
-			this.videoInfoFilePostMappers.deleteBatchByFileId(delFileList, videoInfoPost.getUserId());
-			//TODO 优化点：删除视频文件使用消息队列完成
+			List<String> delFileIdList = deleteFileList.stream().map(item -> item.getFileId()).collect(Collectors.toList());
+			this.videoInfoFilePostMappers.deleteBatchByFileId(delFileIdList, videoInfoPost.getUserId());
+			//将要删除的视频加入消息队列
 			List<String> delFilePathList = deleteFileList.stream().map(item -> item.getFilePath()).collect(Collectors.toList());
 			redisComponent.addFile2DelQueue(videoId, delFilePathList);
 		}
 
+		//更新视频信息
 		Integer index = 1;
 		for (VideoInfoFilePost videoInfoFile : uploadFileList) {
 			videoInfoFile.setFileIndex(index++);
@@ -241,9 +235,11 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 				videoInfoFile.setTransferResult(VideoFileTransferResultEnum.TRANSFER.getStatus());
 			}
 		}
-
 		this.videoInfoFilePostMappers.insertOrUpdateBatch(uploadFileList);
-		if (addFileList != null && !addFileList.isEmpty()) {
+
+
+		//将需要转码的视频加入队列
+		if (!addFileList.isEmpty()) {
 			for (VideoInfoFilePost file : addFileList) {
 				file.setUserId(videoInfoPost.getUserId());
 				file.setVideoId(videoId);
@@ -392,6 +388,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			List<VideoInfoFile> videoInfoFileList = CopyTools.copyList(videoInfoFilePostList, VideoInfoFile.class);
 			this.videoInfoFileMappers.insertBatch(videoInfoFileList);
 		}
+
 		/**
 		 * 删除消息队列中的文件，上一批次添加进来的，用户删除的
 		 */
@@ -487,7 +484,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 		if (!videoInfoPost.getVideoCover().equals(dbInfo.getVideoCover())
 				|| !videoInfoPost.getVideoName().equals(dbInfo.getVideoName())
 				|| !videoInfoPost.getTags().equals(dbInfo.getTags())
-				|| !videoInfoPost.getIntroduction().equals(dbInfo.getIntroduction())) {
+				|| !videoInfoPost.getIntroduction().equals(dbInfo.getIntroduction() == null ? "" : dbInfo.getIntroduction())) {
 			return true;
 		} else {
 			return false;

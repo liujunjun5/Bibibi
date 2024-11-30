@@ -56,18 +56,44 @@ public class VideoComment implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date postTime;
+
     /**
      * 喜欢数量
      */
     private Integer likeCount;
+
     /**
      * 讨厌数量
      */
     private Integer hateCount;
+
     private String avatar;
+
     private String nickName;
+
     private String replyAvatar;
+
     private String replyNickName;
+
+    private String videoName;
+
+    private String videoCover;
+
+    public String getVideoName() {
+        return videoName;
+    }
+
+    public void setVideoName(String videoName) {
+        this.videoName = videoName;
+    }
+
+    public String getVideoCover() {
+        return videoCover;
+    }
+
+    public void setVideoCover(String videoCover) {
+        this.videoCover = videoCover;
+    }
 
     public List<VideoComment> getChildren() {
         return children;

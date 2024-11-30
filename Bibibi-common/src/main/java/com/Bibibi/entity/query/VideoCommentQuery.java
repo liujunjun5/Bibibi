@@ -90,6 +90,7 @@ public class VideoCommentQuery extends BaseQuery {
 
     private String videoNameFuzzy;
 
+
     public String getVideoNameFuzzy() {
         return videoNameFuzzy;
     }

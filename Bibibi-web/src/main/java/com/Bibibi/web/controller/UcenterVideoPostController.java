@@ -3,10 +3,13 @@ package com.Bibibi.web.controller;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.po.VideoInfoPost;
+import com.Bibibi.entity.query.VideoInfoFilePostQuery;
 import com.Bibibi.entity.query.VideoInfoPostQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.entity.vo.ResponseVO;
+import com.Bibibi.entity.vo.VideoPostEditInfoVo;
 import com.Bibibi.entity.vo.VideoStatusCountInfoVO;
+import com.Bibibi.enums.ResponseCodeEnum;
 import com.Bibibi.enums.VideoStatusEnum;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.service.VideoInfoFilePostService;
@@ -119,5 +122,37 @@ public class UcenterVideoPostController extends ABaseController {
         countInfoVO.setInProgress(inProgress);
 
         return getSuccessResponseVO(countInfoVO);
+    }
+
+    @RequestMapping("/getVideoByVideoId")
+    public ResponseVO getVideoByVideoId(@NotEmpty String videoId) throws BusinessException {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+
+        VideoInfoPost videoInfoPost = this.videoInfoPostService.getByVideoId(videoId);
+        if (videoInfoPost==null||!videoInfoPost.getUserId().equals(tokenUserInfoDto.getUserId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_404);
+        }
+        VideoInfoFilePostQuery videoInfoFilePostQuery = new VideoInfoFilePostQuery();
+        videoInfoFilePostQuery.setVideoId(videoId);
+        videoInfoFilePostQuery.setOrderBy("file_index asc");
+        List<VideoInfoFilePost> videoInfoFilePostList = this.videoInfoFilePostService.findListByParam(videoInfoFilePostQuery);
+        VideoPostEditInfoVo vo = new VideoPostEditInfoVo();
+        vo.setVideoInfo(videoInfoPost);
+        vo.setVideoInfoFileList(videoInfoFilePostList);
+        return getSuccessResponseVO(vo);
+    }
+
+    @RequestMapping("/saveVideoInteraction")
+    public ResponseVO saveVideoInteraction(@NotEmpty String videoId, String interaction) {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+        videoInfoService.changeInteraction(videoId, tokenUserInfoDto.getUserId(), interaction);
+        return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("/deleteVideo")
+    public ResponseVO deleteVideo(@NotEmpty String videoId) throws BusinessException {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+        videoInfoService.deleteVideo(videoId, tokenUserInfoDto.getUserId());
+        return getSuccessResponseVO(null);
     }
 }

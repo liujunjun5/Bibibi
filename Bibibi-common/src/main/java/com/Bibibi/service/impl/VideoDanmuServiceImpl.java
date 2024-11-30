@@ -126,4 +126,21 @@ public class VideoDanmuServiceImpl implements VideoDanmuService {
 
     }
 
+
+    /**
+     * @param danmuId
+     * @param userId
+     */
+    @Override
+    public void deleteDanmu(Integer danmuId, String userId) throws BusinessException {
+        VideoDanmu videoDanmu = videoDanmuMappers.selectByDanmuId(danmuId);
+        if (videoDanmu == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        VideoInfo videoInfo = videoInfoMapper.selectByVideoId(videoDanmu.getVideoId());
+        if (videoInfo == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        videoDanmuMappers.deleteByDanmuId(danmuId);
+    }
 }

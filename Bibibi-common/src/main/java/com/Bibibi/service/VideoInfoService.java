@@ -1,6 +1,8 @@
 package com.Bibibi.service;
 
 import java.util.Date;
+
+import com.Bibibi.exception.BusinessException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.Bibibi.entity.po.VideoInfo;
@@ -61,4 +63,7 @@ public interface VideoInfoService {
 	 */
 	Integer deleteByVideoId(String videoId);
 
+    void changeInteraction(String videoId, String userId, String interaction);
+
+	void deleteVideo(String videoId, String userId) throws BusinessException;
 }

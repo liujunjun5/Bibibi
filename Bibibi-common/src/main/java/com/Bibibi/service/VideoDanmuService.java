@@ -61,4 +61,6 @@ public interface VideoDanmuService {
     Integer deleteByDanmuId(Integer danmuId);
 
     void saveVideoDanmu(VideoDanmu videoDanmu) throws BusinessException;
+
+    void deleteDanmu(Integer danmuId, String userId) throws BusinessException;
 }
