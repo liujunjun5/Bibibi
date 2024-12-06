@@ -1,5 +1,6 @@
 package com.Bibibi.service.impl;
 
+import com.Bibibi.component.EsSearchComponent;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.UserAction;
 import com.Bibibi.entity.po.UserInfo;
@@ -11,6 +12,7 @@ import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
 import com.Bibibi.enums.ResponseCodeEnum;
+import com.Bibibi.enums.SearchOrderTypeEnum;
 import com.Bibibi.enums.UserActionTypeEnum;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.mappers.UserActionMappers;
@@ -31,6 +33,9 @@ import java.util.List;
  */
 @Service("UserActionService")
 public class UserActionServiceImpl implements UserActionService {
+
+    @Resource
+    private EsSearchComponent esSearchComponent;
 
     @Resource
     private UserInfoMappers<UserInfo, UserInfoQuery> userInfoMappers;
@@ -176,7 +181,7 @@ public class UserActionServiceImpl implements UserActionService {
                 Integer changeCount = dbAction == null ? Constants.ONE : -Constants.ONE;
                 videoInfoMappers.updateCountInfo(bean.getVideoId(), actionTypeEnum.getField(), changeCount);
                 if (actionTypeEnum == UserActionTypeEnum.VIDEO_COLLECT) {
-                    //TODO 更新ES的收藏数量
+                    esSearchComponent.updateDocCount(videoInfo.getVideoId(), SearchOrderTypeEnum.VIDEO_COLLECT.getField(), changeCount);
                 }
                 break;
             case VIDEO_COIN:

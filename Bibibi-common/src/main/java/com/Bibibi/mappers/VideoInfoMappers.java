@@ -1,5 +1,6 @@
 package com.Bibibi.mappers;
 
+import com.Bibibi.entity.dto.CountInfoDto;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -32,4 +33,6 @@ public interface VideoInfoMappers<T, P> extends BaseMapper {
      * @param changeCount 数量
      */
     void updateCountInfo(@Param("videoId") String videoId, @Param("field") String field, @Param("changeCount") Integer changeCount);
+
+    CountInfoDto selectSumCountInfo(@Param("userId") String userId);
 }

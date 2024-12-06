@@ -1,5 +1,6 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.VideoInfo;
 import com.Bibibi.entity.query.VideoCommentQuery;
@@ -39,6 +40,7 @@ public class UcenterInteractionController extends ABaseController {
     @Resource
     private VideoCommentService videoCommentService;
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadAllVideo")
     public ResponseVO loadAllVideo() {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -49,6 +51,7 @@ public class UcenterInteractionController extends ABaseController {
         return getSuccessResponseVO(videoInfoList);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadComment")
     public ResponseVO loadComment(Integer pageNo, String videoId) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -62,12 +65,14 @@ public class UcenterInteractionController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/delComment")
     public ResponseVO delComment(@NotNull Integer commentId) throws BusinessException {
         videoCommentService.deleteComment(commentId, getTokenUserInfoDto().getUserId());
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadDanmu")
     public ResponseVO loadDanmu(Integer pageNo, String videoId) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -81,6 +86,7 @@ public class UcenterInteractionController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/delDanmu")
     public ResponseVO delDanmu(@NotNull Integer danmuId) throws BusinessException {
         videoDanmuService.deleteDanmu(danmuId, getTokenUserInfoDto().getUserId());

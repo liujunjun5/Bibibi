@@ -2,12 +2,17 @@ package com.Bibibi.service.impl;
 
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.constants.Constants;
+import com.Bibibi.entity.dto.CountInfoDto;
+import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.dto.UserCountInfoDto;
 import com.Bibibi.entity.po.UserFocus;
 import com.Bibibi.entity.po.UserInfo;
+import com.Bibibi.entity.po.VideoInfo;
 import com.Bibibi.entity.query.SimplePage;
 import com.Bibibi.entity.query.UserFocusQuery;
 import com.Bibibi.entity.query.UserInfoQuery;
+import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
 import com.Bibibi.enums.ResponseCodeEnum;
@@ -16,6 +21,7 @@ import com.Bibibi.enums.UserStatusEnum;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.mappers.UserFocusMappers;
 import com.Bibibi.mappers.UserInfoMappers;
+import com.Bibibi.mappers.VideoInfoMappers;
 import com.Bibibi.service.UserInfoService;
 import com.Bibibi.utils.CopyTools;
 import com.Bibibi.utils.StringTools;
@@ -45,6 +51,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Resource
     private UserFocusMappers<UserFocus, UserFocusQuery> userFocusMappers;
+
+    @Resource
+    private VideoInfoMappers<VideoInfo, VideoInfoQuery> videoInfoMappers;
 
     /**
      * 根据条件查询列表
@@ -194,8 +203,9 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setSex(UserSexEnum.SECRECY.getType());
         userInfo.setTheme(Constants.ONE);
         //初始化 用户的硬币
-        userInfo.setCurrentCoinCount(10);
-        userInfo.setTotalCoinCount(10);
+        SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
+        userInfo.setCurrentCoinCount(sysSettingDto.getRegisterCoinCount());
+        userInfo.setTotalCoinCount(sysSettingDto.getRegisterCoinCount());
         this.userInfoMappers.insert(userInfo);
     }
 
@@ -237,7 +247,10 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfo==null) {
             throw new BusinessException(ResponseCodeEnum.CODE_404);
         }
-        //TODO 粉絲相關
+        CountInfoDto countInfoDto = videoInfoMappers.selectSumCountInfo(userId);
+
+        CopyTools.copyProperties(countInfoDto, userInfo);
+
         Integer focusCount = userFocusMappers.selectFocusCount(userId);
         Integer fansCount = userFocusMappers.selectFansCount(userId);
         userInfo.setFocusCount(focusCount);
@@ -281,5 +294,21 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (updateTokenInfo) {
             redisComponent.updateTokenInfo(tokenUserInfoDto);
         }
+    }
+
+    /**
+     * @param userId
+     * @return
+     */
+    @Override
+    public UserCountInfoDto getUserCountInfo(String userId) {
+        UserInfo userInfo = getByUserId(userId);
+        Integer fansCount = userFocusMappers.selectFansCount(userId);
+        Integer focusCount = userFocusMappers.selectFocusCount(userId);
+        UserCountInfoDto userCountInfoDto = new UserCountInfoDto();
+        userCountInfoDto.setFansCount(fansCount);
+        userCountInfoDto.setFocusCount(focusCount);
+        userCountInfoDto.setCurrentCoinCount(userInfo.getCurrentCoinCount());
+        return userCountInfoDto;
     }
 }

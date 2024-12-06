@@ -5,6 +5,7 @@ import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
+import com.Bibibi.entity.dto.VideoPlayInfoDto;
 import com.Bibibi.entity.po.CategoryInfo;
 import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.enums.DateTimePatternEnum;
@@ -167,5 +168,26 @@ public class RedisComponent {
 
     public void updateTokenInfo(TokenUserInfoDto tokenUserInfoDto) {
         redisUtils.setex(Constants.REDIS_KEY_TOKEN_WEB + tokenUserInfoDto.getToken(), tokenUserInfoDto, Constants.REDIS_KEY_EXPIRES_ONE_DAY * 7);
+    }
+
+    public void addKeywordCount(String keyword) {
+        redisUtils.zaddCount(Constants.REDIS_KEY_VIDEO_SEARCH_COUNT, keyword);
+    }
+
+    public List<String> getKeywordTop(Integer top) {
+        return redisUtils.getZSetList(Constants.REDIS_KEY_VIDEO_SEARCH_COUNT, top - 1);
+    }
+
+    public void addVideoPlay(VideoPlayInfoDto videoPlayInfoDto) {
+        redisUtils.lpush(Constants.REDIS_KEY_QUEUE_VIDEO_PLAY, videoPlayInfoDto, null);
+    }
+
+    public VideoPlayInfoDto getVideoPlayFromVideoPlayQueue() {
+        return (VideoPlayInfoDto) redisUtils.rpop(Constants.REDIS_KEY_QUEUE_VIDEO_PLAY);
+    }
+
+    public void recordVideoPlayCount(String videoId) {
+        String date = DateUtils.format(new Date(), DateTimePatternEnum.YYYY_MM_DD.getPattern());
+        redisUtils.incrementex(Constants.REDIS_KEY_VIDEO_PLAY_COUNT + date + ":" + videoId, Constants.REDIS_KEY_EXPIRES_ONE_DAY * 2);
     }
 }

@@ -1,5 +1,6 @@
 package com.Bibibi.service.impl;
 
+import com.Bibibi.component.EsSearchComponent;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.VideoDanmu;
 import com.Bibibi.entity.po.VideoInfo;
@@ -9,12 +10,14 @@ import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.PageSize;
 import com.Bibibi.enums.ResponseCodeEnum;
+import com.Bibibi.enums.SearchOrderTypeEnum;
 import com.Bibibi.enums.UserActionTypeEnum;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.mappers.VideoDanmuMappers;
 import com.Bibibi.mappers.VideoInfoMappers;
 import com.Bibibi.service.VideoDanmuService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -32,6 +35,9 @@ public class VideoDanmuServiceImpl implements VideoDanmuService {
 
     @Resource
     private VideoDanmuMappers<VideoDanmu, VideoDanmuQuery> videoDanmuMappers;
+
+    @Resource
+    private EsSearchComponent esSearchComponent;
 
     /**
      * 根据条件查询列表
@@ -109,7 +115,9 @@ public class VideoDanmuServiceImpl implements VideoDanmuService {
         return this.videoDanmuMappers.deleteByDanmuId(danmuId);
     }
 
+
     @Override
+    @Transactional
     public void saveVideoDanmu(VideoDanmu bean) throws BusinessException {
         VideoInfo videoInfo = videoInfoMapper.selectByVideoId(bean.getVideoId());
         if (videoInfo == null) {
@@ -122,8 +130,7 @@ public class VideoDanmuServiceImpl implements VideoDanmuService {
         this.videoDanmuMappers.insert(bean);
         this.videoInfoMapper.updateCountInfo(bean.getVideoId(), UserActionTypeEnum.VIDEO_DANMU.getField(), 1);
 
-        //TODO 更新es 弹幕数量
-
+        esSearchComponent.updateDocCount(bean.getVideoId(), SearchOrderTypeEnum.VIDEO_DANMU.getField(), 1);
     }
 
 

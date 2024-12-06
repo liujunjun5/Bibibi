@@ -193,7 +193,7 @@
 				and video_id not in(<foreach collection="query.excludeVideoIdArray" separator="," item="item">#{item}</foreach>)
 			</if>
 			<if test="query.lastPlayHour!=null">
-				<![CDATA[ and  v.last_play_time>=date_sub(now(), interval #{query.lastPlayHour} hour) ]]>
+				<![CDATA[ and v.last_play_time>=date_sub(now(), interval #{query.lastPlayHour} hour) ]]>
 			</if>
 		</where>
 	</sql>
@@ -878,4 +878,8 @@
 		where video_id = #{videoId}
 	</update>
 
+	<select id="selectSumCountInfo" resultType="com.Bibibi.entity.dto.CountInfoDto">
+		select ifnull(sum(play_count),0) playCount,ifnull(sum(like_count),0) likeCount from video_info
+		where user_id = #{userId}
+	</select>
 </mapper>

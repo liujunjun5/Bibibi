@@ -1,5 +1,6 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.po.VideoInfoPost;
@@ -55,6 +56,7 @@ public class UcenterVideoPostController extends ABaseController {
      * @param uploadFileList 文件集合
      * @return
      */
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/postVideo")
     public ResponseVO postVideo(String videoId, @NotEmpty String videoCover, @NotEmpty @Size(max = 100) String videoName, @NotNull Integer pCategoryId, Integer categoryId, @NotNull Integer postType, @Size(max = 2000) String introduction, @NotEmpty @Size(max = 300) String tags, @Size(max = 3) String interaction, @NotEmpty String uploadFileList) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -76,6 +78,7 @@ public class UcenterVideoPostController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadVideoList")
     public ResponseVO loadVideoPost(Integer status, Integer pageNo, String videoNameFuzzy) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -99,6 +102,7 @@ public class UcenterVideoPostController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/getVideoCountInfo")
     public ResponseVO getVideoCountInfo() {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -124,6 +128,7 @@ public class UcenterVideoPostController extends ABaseController {
         return getSuccessResponseVO(countInfoVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/getVideoByVideoId")
     public ResponseVO getVideoByVideoId(@NotEmpty String videoId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -142,6 +147,7 @@ public class UcenterVideoPostController extends ABaseController {
         return getSuccessResponseVO(vo);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/saveVideoInteraction")
     public ResponseVO saveVideoInteraction(@NotEmpty String videoId, String interaction) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -149,6 +155,7 @@ public class UcenterVideoPostController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/deleteVideo")
     public ResponseVO deleteVideo(@NotEmpty String videoId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();

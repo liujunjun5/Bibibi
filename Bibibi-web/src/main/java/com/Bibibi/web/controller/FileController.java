@@ -1,11 +1,13 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.config.AppConfig;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
+import com.Bibibi.entity.dto.VideoPlayInfoDto;
 import com.Bibibi.entity.po.VideoInfoFile;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.enums.DateTimePatternEnum;
@@ -79,6 +81,7 @@ public class FileController extends ABaseController {
         }
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/preUploadVideo")
     public ResponseVO preUploadVideo(@NotEmpty String fileName, @NotNull Integer chunks) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -93,6 +96,7 @@ public class FileController extends ABaseController {
      * @return
      * @throws BusinessException
      */
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/uploadVideo")
     public ResponseVO uploadVideo(@NotNull MultipartFile chunkFile, @NotNull Integer chunkIndex, @NotEmpty String uploadId) throws BusinessException, IOException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -118,9 +122,10 @@ public class FileController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/delUploadVideo")
     public ResponseVO delUploadVideo(@NotEmpty String uploadId) throws BusinessException, IOException {
-        TokenUserInfoDto tokenUserInfoDto = getTokenInfoFromCookie();
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
         UploadingFileDto fileDto = redisComponent.getUploadVideoFile(tokenUserInfoDto.getUserId(), uploadId);
         if (fileDto == null) {
             throw new BusinessException("文件不存在，请重新上传");
@@ -133,6 +138,7 @@ public class FileController extends ABaseController {
         return getSuccessResponseVO(uploadId);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/uploadImage")
     public ResponseVO uploadImage(@NotNull MultipartFile file, @NotNull Boolean createThumbnail) throws IOException, BusinessException {
         String day = DateUtils.format(new Date(), DateTimePatternEnum.YYYYMMDD.getPattern());
@@ -157,7 +163,16 @@ public class FileController extends ABaseController {
         VideoInfoFile videoInfoFile = videoInfoFileService.getByFileId(fileId);
         String filePath = videoInfoFile.getFilePath();
         readFile(response, filePath + "/" + Constants.M3U8_NAME);
-        //TODO 更新视频的阅读信息
+
+        VideoPlayInfoDto videoPlayInfoDto = new VideoPlayInfoDto();
+        videoPlayInfoDto.setVideoId(videoInfoFile.getVideoId());
+        videoPlayInfoDto.setFileIndex(videoInfoFile.getFileIndex());
+
+        TokenUserInfoDto tokenUserInfoDto = getTokenInfoFromCookie();
+        if (tokenUserInfoDto != null) {
+            videoPlayInfoDto.setUserId(tokenUserInfoDto.getUserId());
+        }
+        redisComponent.addVideoPlay(videoPlayInfoDto);
     }
 
     @RequestMapping("/videoResource/{fileId}/{ts}")

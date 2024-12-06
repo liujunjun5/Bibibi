@@ -17,6 +17,8 @@ public class Constants {
     public static final Integer REDIS_KEY_EXPIRES_ONE_MIN = 60000;
     public static final Integer REDIS_KEY_EXPIRES_ONE_DAY = REDIS_KEY_EXPIRES_ONE_MIN * 60 * 24;
     public static final Integer TIME_SECONDS_DAY = REDIS_KEY_EXPIRES_ONE_DAY / 1000;
+    public static final Integer HOUR_24 = 24;
+
     public static final Integer UPDATE_NICK_NAME_COIN = 5;
 
     public static final String REDIS_KEY_PREFIX = "Bibibi:";
@@ -29,6 +31,7 @@ public class Constants {
     public static final String REDIS_KEY_SYS_SETTING = REDIS_KEY_PREFIX + "sysSetting:";
     public static final String REDIS_KEY_FILE_DEL = REDIS_KEY_PREFIX + "file:list:del:";
     public static final String REDIS_KEY_QUEUE_TRANSFER = REDIS_KEY_PREFIX + "queue:transfer:";
+    public static final String REDIS_KEY_QUEUE_VIDEO_PLAY = REDIS_KEY_PREFIX + "queue:video:play:";
 
     public static final String TOKEN_KEY = "token";
     public static final String TOKEN_ADMIN_KEY = "adminToken";
@@ -51,5 +54,7 @@ public class Constants {
     public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX = "user:";
     public static final String REDIS_KEY_VIDEO_PLAY_COUNT_USER = REDIS_KEY_VIDEO_PLAY_ONLINE_PREFIX + REDIS_KEY_VIDEO_PLAY_COUNT_USER_PREFIX + "%s:%s";
 
-
+    //搜索
+    public static final String REDIS_KEY_VIDEO_SEARCH_COUNT = REDIS_KEY_PREFIX + "video:search:";
+    public static final String REDIS_KEY_VIDEO_PLAY_COUNT = REDIS_KEY_PREFIX + "video:playcount:";
 }

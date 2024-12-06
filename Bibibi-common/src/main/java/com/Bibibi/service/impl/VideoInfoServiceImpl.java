@@ -1,7 +1,9 @@
 package com.Bibibi.service.impl;
 
+import com.Bibibi.component.EsSearchComponent;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.config.AppConfig;
+import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.po.*;
 import com.Bibibi.entity.query.*;
 import com.Bibibi.entity.vo.PaginationResultVO;
@@ -12,6 +14,7 @@ import com.Bibibi.mappers.*;
 import com.Bibibi.service.VideoInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +63,12 @@ public class VideoInfoServiceImpl implements VideoInfoService {
 
 	@Resource
 	private VideoInfoFileMappers videoInfoFileMappers;
+
+    @Resource
+    private EsSearchComponent esSearchComponent;
+
+//	@Resource
+//	private UserInfoMappers<UserInfo, UserInfoQuery> userInfoMappers;
 
 	/**
 	 * 根据条件查询列表
@@ -162,9 +171,12 @@ public class VideoInfoServiceImpl implements VideoInfoService {
 		}
 		this.videoInfoMappers.deleteByVideoId(videoId);
 		this.videoInfoPostMappers.deleteByVideoId(videoId);
-//		SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
-		//TODO 減去用戶加硬幣
-		//TODO 刪除es信息
+
+		SysSettingDto sysSettingDto = redisComponent.getSysSettingDto();
+		userInfoMappers.updateCoinCountInfo(videoInfo.getUserId(), -sysSettingDto.getPostVideoCoinCount());
+
+		esSearchComponent.delDoc(videoId);
+
 		executorService.execute(() -> {
 
 			VideoInfoFileQuery videoInfoFileQuery = new VideoInfoFileQuery();

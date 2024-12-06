@@ -77,4 +77,8 @@ public interface VideoInfoPostService {
 	 * @param reason  未通过理由
 	 */
 	void auditVideo(String videoId, Integer status, String reason) throws BusinessException;
+
+    void addReadCount(String videoId);
+
+    void recommendVideo(String videoId) throws BusinessException;
 }

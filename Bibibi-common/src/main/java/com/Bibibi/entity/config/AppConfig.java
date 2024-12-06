@@ -17,6 +17,19 @@ public class AppConfig {
     @Value("${showFFmegLog}")
     private Boolean showFFmpegLog;
 
+    @Value("${es.host.port}")
+    private String esHostPort;
+
+    @Value("${es.index.video.name}")
+    private String esIndexVideoName;
+
+    public String getEsHostPort() {
+        return esHostPort;
+    }
+
+    public String getEsIndexVideoName() {
+        return esIndexVideoName;
+    }
 
     public Boolean getShowFFmpegLog() {
         return showFFmpegLog;
@@ -33,4 +46,6 @@ public class AppConfig {
     public String getAdminPassword() {
         return adminPassword;
     }
+
+
 }

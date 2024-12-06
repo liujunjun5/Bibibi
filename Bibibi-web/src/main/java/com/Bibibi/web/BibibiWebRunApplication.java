@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableScheduling
 public class BibibiWebRunApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(BibibiWebRunApplication.class, args);
     }
+
+
 }

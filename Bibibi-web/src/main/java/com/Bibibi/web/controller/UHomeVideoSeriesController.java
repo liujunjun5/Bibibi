@@ -1,5 +1,6 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.UserVideoSeries;
 import com.Bibibi.entity.po.UserVideoSeriesVideo;
@@ -44,6 +45,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(videoSeries);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/saveVideoSeries")
     public ResponseVO saveVideoSeries(Integer seriesId,
                                       @NotEmpty @Size(max = 100) String seriesName,
@@ -59,6 +61,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadAllVideo")
     public ResponseVO loadAllVideo(Integer seriesId) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -94,6 +97,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(new UserVideoSeriesDetailVO(userVideoSeries, seriesVideoList));
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/saveSeriesVideo")
     public ResponseVO saveSeriesVideo(@NotNull Integer seriesId, @NotEmpty String videoIds) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -101,6 +105,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/delSeriesVideo")
     public ResponseVO delSeriesVideo(@NotNull Integer seriesId, @NotEmpty String videoId) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -108,6 +113,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/delVideoSeries")
     public ResponseVO delVideoSeries(@NotNull Integer seriesId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -115,6 +121,7 @@ public class UHomeVideoSeriesController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("changeVideoSeriesSort")
     public ResponseVO changeVideoSeriesSort(@NotEmpty String seriesIds) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();

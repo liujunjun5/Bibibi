@@ -1,5 +1,6 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.VideoDanmu;
 import com.Bibibi.entity.po.VideoInfo;
@@ -28,6 +29,7 @@ public class VideoDanmuController extends ABaseController {
     @Resource
     private VideoInfoService videoInfoService;
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/postDanmu")
     public ResponseVO postDanmu(@NotEmpty String videoId, @NotEmpty String fileId, @NotEmpty @Size(max = 200) String text, @NotNull Integer mode, @NotEmpty String color, @NotNull Integer time) throws BusinessException {
 

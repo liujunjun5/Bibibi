@@ -3,6 +3,7 @@ package com.Bibibi.web.controller;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.dto.UserCountInfoDto;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.service.UserInfoService;
@@ -10,8 +11,6 @@ import com.Bibibi.utils.StringTools;
 import com.wf.captcha.ArithmeticCaptcha;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -86,7 +85,6 @@ public class AccountController extends ABaseController {
             String ip = getIpAddr();
             TokenUserInfoDto tokenUserInfoDto = userInfoService.login(request, email, password, ip);
             saveToken2Cookie(response, tokenUserInfoDto.getToken());
-            //TODO 设置 粉丝数，关注数，硬币数
             log.info("登陆成功");
             return getSuccessResponseVO(tokenUserInfoDto);
         } finally {
@@ -117,7 +115,6 @@ public class AccountController extends ABaseController {
             redisComponent.saveTokenInfo(tokenUserInfoDto);
             saveToken2Cookie(response, tokenUserInfoDto.getToken());
         }
-        //TODO 设置 粉丝数，关注数，硬币数
         return getSuccessResponseVO(tokenUserInfoDto);
     }
 
@@ -126,5 +123,12 @@ public class AccountController extends ABaseController {
         cleanCookie(response);
         log.info("退出登录");
         return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("/getUserCountInfo")
+    public ResponseVO getUserCountInfo() {
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
+        UserCountInfoDto userCountInfoDto = userInfoService.getUserCountInfo(tokenUserInfoDto.getUserId());
+        return getSuccessResponseVO(userCountInfoDto);
     }
 }

@@ -48,3 +48,10 @@ log:
 admin:
   account: admin
   password: admin123
+
+es:
+  host:
+    port: localhost:9200
+  index:
+    video:
+      name: bibibi_video

@@ -1,5 +1,8 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.annotation.RecordUserMessage;
+import com.Bibibi.enums.MessageTypeEnum;
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.UserAction;
@@ -54,7 +57,9 @@ public class VideoCommentController extends ABaseController {
      * @param imgPath        圖片
      * @throws BusinessException
      */
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/postComment")
+    @RecordUserMessage(messageType = MessageTypeEnum.COMMENT)
     public ResponseVO postComment(@NotEmpty String videoId,
                                   @NotEmpty @Size(max = 500) String content,
                                   Integer replyCommentId,
@@ -117,6 +122,7 @@ public class VideoCommentController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+
     private List<VideoComment> topComment(String videoId) {
         VideoCommentQuery commentQuery = new VideoCommentQuery();
         commentQuery.setVideoId(videoId);
@@ -126,6 +132,7 @@ public class VideoCommentController extends ABaseController {
         return videoCommentList;
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/topComment")
     public ResponseVO topComment(@NotNull Integer commentId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -133,6 +140,7 @@ public class VideoCommentController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/cancelTopComment")
     public ResponseVO cancelTopComment(@NotNull Integer commentId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -140,6 +148,7 @@ public class VideoCommentController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/userDelComment")
     public ResponseVO userDelComment(@NotNull Integer commentId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();

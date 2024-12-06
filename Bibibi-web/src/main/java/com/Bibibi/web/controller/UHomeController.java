@@ -1,5 +1,6 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.UserAction;
@@ -43,6 +44,7 @@ public class UHomeController extends ABaseController {
     @Resource
     private UserActionService userActionService;
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/getUserInfo")
     public ResponseVO getUserInfo(@NotEmpty String userId) throws BusinessException {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -52,6 +54,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(userInfoVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/updateUserInfo")
     public ResponseVO updateUserInfo(@NotEmpty @Size(max = 20) String nickName,
                                      @NotEmpty @Size(max = 100) String avatar,
@@ -76,6 +79,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/saveTheme")
     public ResponseVO saveTheme(@Min(1) @Max(10) @NotNull Integer theme) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -85,6 +89,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/focus")
 //    @GlobalInterceptor(checkLogin = true)
     public ResponseVO focus(@NotEmpty String focusUserId) throws BusinessException {
@@ -92,12 +97,14 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/cancelFocus")
     public ResponseVO cancelFocus(@NotEmpty String focusUserId) {
         userFocusService.cancelFocus(getTokenUserInfoDto().getUserId(), focusUserId);
         return getSuccessResponseVO(null);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadFocusList")
     public ResponseVO loadFocusList(Integer pageNo) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -111,6 +118,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadFansList")
     public ResponseVO loadFansList(Integer pageNo) {
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto();
@@ -124,6 +132,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadVideoList")
     public ResponseVO loadVideoList(@NotEmpty String userId, Integer type, Integer pageNo, String videoName, Integer orderType) {
         VideoInfoQuery infoQuery = new VideoInfoQuery();
@@ -142,6 +151,7 @@ public class UHomeController extends ABaseController {
         return getSuccessResponseVO(resultVO);
     }
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("/loadUserCollection")
     public ResponseVO loadUserCollection(@NotEmpty String userId, Integer pageNo) {
         UserActionQuery actionQuery = new UserActionQuery();

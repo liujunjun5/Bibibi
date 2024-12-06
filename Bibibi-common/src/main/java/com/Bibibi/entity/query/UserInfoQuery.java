@@ -1,6 +1,7 @@
 package com.Bibibi.entity.query;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Description:用户信息查询对象
@@ -120,6 +121,16 @@ public class UserInfoQuery extends BaseQuery{
 	private String avatar;
 
 	private String avatarFuzzy;
+
+	private List<String> userIdList;
+
+	public List<String> getUserIdList() {
+		return userIdList;
+	}
+
+	public void setUserIdList(List<String> userIdList) {
+		this.userIdList = userIdList;
+	}
 
 	public void setUserIdFuzzy(String userIdFuzzy) {
 		this.userIdFuzzy = userIdFuzzy;

@@ -1,5 +1,8 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.annotation.RecordUserMessage;
+import com.Bibibi.enums.MessageTypeEnum;
+import com.Bibibi.web.annotation.GlobalInterceptor;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.po.UserAction;
 import com.Bibibi.entity.vo.ResponseVO;
@@ -25,7 +28,9 @@ public class UserActionController extends ABaseController {
     @Resource
     private UserActionService userActionService;
 
+    @GlobalInterceptor(checkLogin = true)
     @RequestMapping("doAction")
+    @RecordUserMessage(messageType = MessageTypeEnum.LIKE)
     public ResponseVO doAction(@NotEmpty String videoId,
                                @NotNull Integer actionType,
                                @Max(2) @Min(1) Integer actionCount,

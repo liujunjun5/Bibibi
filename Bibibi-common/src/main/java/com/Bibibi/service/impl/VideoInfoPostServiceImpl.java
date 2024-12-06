@@ -1,14 +1,12 @@
 package com.Bibibi.service.impl;
 
+import com.Bibibi.component.EsSearchComponent;
 import com.Bibibi.component.RedisComponent;
 import com.Bibibi.entity.config.AppConfig;
 import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.SysSettingDto;
 import com.Bibibi.entity.dto.UploadingFileDto;
-import com.Bibibi.entity.po.VideoInfo;
-import com.Bibibi.entity.po.VideoInfoFile;
-import com.Bibibi.entity.po.VideoInfoFilePost;
-import com.Bibibi.entity.po.VideoInfoPost;
+import com.Bibibi.entity.po.*;
 import com.Bibibi.entity.query.*;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.enums.*;
@@ -21,7 +19,6 @@ import com.Bibibi.utils.StringTools;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * @Description:视频信息Service
- * @date:2024-11-11
+ * @Description: 视频信息Service
+ * @date: 2024-11-11
  * @author: liujun
  */
 @Slf4j
@@ -58,7 +55,10 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	private VideoInfoFileMappers<VideoInfoFile, VideoInfoFileQuery> videoInfoFileMappers;
 
 	@Resource
-	private UserInfoMappers userInfoMappers;
+	private UserInfoMappers<UserInfo, UserInfoQuery> userInfoMappers;
+
+	@Resource
+	private EsSearchComponent esSearchComponent;
 
 	@Resource
 	private AppConfig appConfig;
@@ -66,7 +66,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	@Resource
 	private FFmpegUtils fFmpegUtils;
 
-	@Autowired
+	@Resource
 	private RedisComponent redisComponent;
 
 	/**
@@ -151,7 +151,6 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	 *
 	 * @param videoInfoPost  视频上传信息
 	 * @param uploadFileList 文件信息（包括文件id，文件名称）
-	 * @throws BusinessException
 	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -216,10 +215,10 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 		//清除已经删除的数据
 		if (!deleteFileList.isEmpty()) {
-			List<String> delFileIdList = deleteFileList.stream().map(item -> item.getFileId()).collect(Collectors.toList());
+			List<String> delFileIdList = deleteFileList.stream().map(VideoInfoFilePost::getFileId).collect(Collectors.toList());
 			this.videoInfoFilePostMappers.deleteBatchByFileId(delFileIdList, videoInfoPost.getUserId());
 			//将要删除的视频加入消息队列
-			List<String> delFilePathList = deleteFileList.stream().map(item -> item.getFilePath()).collect(Collectors.toList());
+			List<String> delFilePathList = deleteFileList.stream().map(VideoInfoFilePost::getFilePath).collect(Collectors.toList());
 			redisComponent.addFile2DelQueue(videoId, delFilePathList);
 		}
 
@@ -357,8 +356,8 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 			VideoInfoPost infoPost = this.videoInfoPostMappers.selectByVideoId(videoId);
 
-			/**
-			 * 第一次发视频的话，增加积分
+			/*
+			  第一次发视频的话，增加积分
 			 */
 			VideoInfo dbVideoInfo = this.videoInfoMappers.selectByVideoId(videoId);
 			if (dbVideoInfo == null) {
@@ -366,16 +365,14 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 				userInfoMappers.updateCoinCountInfo(infoPost.getUserId(), sysSettingDto.getPostVideoCoinCount());
 			}
 
-			/**
-			 * 将发布信息更新到正式表信息
+			/*
+			  将发布信息更新到正式表信息
 			 */
 			VideoInfo videoInfo = CopyTools.copy(infoPost, VideoInfo.class);
-//		Integer id = infoPost.getPCategoryId();
-//		videoInfo.setPCategoryId(id);
 			this.videoInfoMappers.insertOrUpdate(videoInfo);
 
-			/**
-			 * 更新视频文件信息 --- 先删除原来的，变为最新的
+			/*
+			  更新视频文件信息 --- 先删除原来的，变为最新的
 			 */
 			VideoInfoFileQuery videoInfoFileQuery = new VideoInfoFileQuery();
 			videoInfoFileQuery.setVideoId(videoId);
@@ -387,10 +384,17 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 			List<VideoInfoFile> videoInfoFileList = CopyTools.copyList(videoInfoFilePostList, VideoInfoFile.class);
 			this.videoInfoFileMappers.insertBatch(videoInfoFileList);
+
+			/*
+			  保存信息到es
+			 */
+			esSearchComponent.saveDoc(videoInfo);
 		}
 
-		/**
-		 * 删除消息队列中的文件，上一批次添加进来的，用户删除的
+
+
+		/*
+		  删除消息队列中的文件，上一批次添加进来的，用户删除的
 		 */
 		List<String> filePathList = redisComponent.getDelFileList(videoId);
 		if (filePathList != null) {
@@ -408,10 +412,34 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 
 		redisComponent.cleanDelFileList(videoId);
 
-		/**
-		 * 保存信息到es
-		 */
-		//TODO 保存信息到es
+	}
+
+	/**
+	 * @param videoId
+	 */
+	@Override
+	public void addReadCount(String videoId) {
+		this.videoInfoMappers.updateCountInfo(videoId, UserActionTypeEnum.VIDEO_PLAY.getField(), 1);
+	}
+
+	/**
+	 * @param videoId
+	 */
+	@Override
+	public void recommendVideo(String videoId) throws BusinessException {
+		VideoInfo videoInfo = videoInfoMappers.selectByVideoId(videoId);
+		if (videoInfo == null) {
+			throw new BusinessException(ResponseCodeEnum.CODE_600);
+		}
+		Integer recommendType = null;
+		if (VideoRecommendTypeEnum.RECOMMEND.getType().equals(videoInfo.getRecommendType())) {
+			recommendType = VideoRecommendTypeEnum.NO_RECOMMEND.getType();
+		} else {
+			recommendType = VideoRecommendTypeEnum.RECOMMEND.getType();
+		}
+		VideoInfo updateInfo = new VideoInfo();
+		updateInfo.setRecommendType(recommendType);
+		videoInfoMappers.updateByVideoId(updateInfo, videoId);
 	}
 
 	private void convertVideo2Ts(String completeVideo) throws BusinessException {
@@ -437,7 +465,6 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	 * @param dirPath    待合并的文件所在目录
 	 * @param toFilePath 合并后文件所在的位置
 	 * @param delSource  是否删除源文件
-	 * @throws BusinessException
 	 */
 	private void union(String dirPath, String toFilePath, Boolean delSource) throws BusinessException {
 		File dir = new File(dirPath);
@@ -445,7 +472,7 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 			throw new BusinessException("目录不存在");
 		}
 		//获取目录下的所有文件，放在fileList数组中
-		File fileList[] = dir.listFiles();
+		File[] fileList = dir.listFiles();
 		//表示合并后的文件
 		File targetFile = new File(toFilePath);
 		try (RandomAccessFile writeFile = new RandomAccessFile(targetFile, "rw")) {
@@ -454,25 +481,21 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 				int len = -1;
 				//创建读块文件的对象
 				File chunkFile = new File(dirPath + File.separator + i);
-				RandomAccessFile readFile = null;
-				try {
-					readFile = new RandomAccessFile(chunkFile, "r");
-					while ((len = readFile.read(b)) != -1) {
-						writeFile.write(b, 0, len);
-					}
-				} catch (Exception e) {
-					log.error("合并分片失败", e);
-					throw new BusinessException("合并文件失败");
-				} finally {
-					readFile.close();
-				}
+                try (RandomAccessFile readFile = new RandomAccessFile(chunkFile, "r")) {
+                    while ((len = readFile.read(b)) != -1) {
+                        writeFile.write(b, 0, len);
+                    }
+                } catch (Exception e) {
+                    log.error("合并分片失败", e);
+                    throw new BusinessException("合并文件失败");
+                }
 			}
 		} catch (Exception e) {
 			throw new BusinessException("合并文件" + dirPath + "出错了");
 		} finally {
 			if (delSource) {
-				for (int i = 0; i < fileList.length; i++) {
-					fileList[i].delete();
+				for (File file : fileList) {
+					file.delete();
 				}
 			}
 		}
@@ -481,13 +504,9 @@ public class VideoInfoPostServiceImpl implements VideoInfoPostService {
 	private Boolean changeVideoInfo(VideoInfoPost videoInfoPost) {
 		VideoInfoPost dbInfo = this.videoInfoPostMappers.selectByVideoId(videoInfoPost.getVideoId());
 		//标题、封面、标签、简介
-		if (!videoInfoPost.getVideoCover().equals(dbInfo.getVideoCover())
+		return !videoInfoPost.getVideoCover().equals(dbInfo.getVideoCover())
 				|| !videoInfoPost.getVideoName().equals(dbInfo.getVideoName())
 				|| !videoInfoPost.getTags().equals(dbInfo.getTags())
-				|| !videoInfoPost.getIntroduction().equals(dbInfo.getIntroduction() == null ? "" : dbInfo.getIntroduction())) {
-			return true;
-		} else {
-			return false;
-		}
+				|| !videoInfoPost.getIntroduction().equals(dbInfo.getIntroduction() == null ? "" : dbInfo.getIntroduction());
 	}
 }

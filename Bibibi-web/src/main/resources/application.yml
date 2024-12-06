@@ -48,3 +48,10 @@ admin:
   password: admin123
 
 showFFmegLog: true
+
+es:
+  host:
+    port: localhost:9200
+  index:
+    video:
+      name: bibibi_video

@@ -1,6 +1,8 @@
 package com.Bibibi.web.controller;
 
+import com.Bibibi.component.EsSearchComponent;
 import com.Bibibi.component.RedisComponent;
+import com.Bibibi.entity.constants.Constants;
 import com.Bibibi.entity.dto.TokenUserInfoDto;
 import com.Bibibi.entity.po.UserAction;
 import com.Bibibi.entity.po.VideoInfo;
@@ -11,14 +13,13 @@ import com.Bibibi.entity.query.VideoInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.entity.vo.VideoInfoResultVo;
-import com.Bibibi.enums.ResponseCodeEnum;
-import com.Bibibi.enums.UserActionTypeEnum;
-import com.Bibibi.enums.VideoRecommendTypeEnum;
+import com.Bibibi.enums.*;
 import com.Bibibi.exception.BusinessException;
 import com.Bibibi.service.UserActionService;
 import com.Bibibi.service.VideoInfoFileService;
 import com.Bibibi.service.VideoInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -46,6 +48,9 @@ public class VideoController extends ABaseController{
     @Resource
     private RedisComponent redisComponent;
 
+    @Resource
+    private EsSearchComponent esSearchComponent;
+
     @RequestMapping("/loadRecommendVideo")
     public ResponseVO loadRecommendVideo() {
         VideoInfoQuery videoInfoQuery = new VideoInfoQuery();
@@ -57,7 +62,7 @@ public class VideoController extends ABaseController{
     }
 
     @RequestMapping("/loadVideo")
-    public ResponseVO postVideo(Integer pCategoryId, Integer categoryId, Integer pageNo) {
+    public ResponseVO loadVideo(Integer pCategoryId, Integer categoryId, Integer pageNo) {
         VideoInfoQuery videoInfoQuery = new VideoInfoQuery();
         videoInfoQuery.setCategoryId(categoryId);
         videoInfoQuery.setPCategoryId(pCategoryId);
@@ -105,5 +110,37 @@ public class VideoController extends ABaseController{
     @RequestMapping("/reportVideoPlayOnline")
     public ResponseVO reportVideoPlayOnline(@NotEmpty String fileId, @NotEmpty String deviceId) {
         return getSuccessResponseVO(redisComponent.reportVideoPlayOnline(fileId, deviceId));
+    }
+
+    @RequestMapping("/search")
+    public ResponseVO search(@NotEmpty String keyword, Integer orderType, Integer pageNo) throws BusinessException {
+        redisComponent.addKeywordCount(keyword);
+        PaginationResultVO resultVO = esSearchComponent.search(true, keyword, orderType, pageNo, PageSize.SIZE30.getSize());
+        return getSuccessResponseVO(resultVO);
+    }
+
+    @RequestMapping("/getSearchKeywordTop")
+    public ResponseVO getSearchKeywordTop() throws BusinessException {
+        //TODO 按时间段区分
+        List<String> keywordTop = redisComponent.getKeywordTop(Constants.LENGTH_10);
+        return getSuccessResponseVO(keywordTop);
+    }
+
+    @RequestMapping("/getVideoRecommend")
+    public ResponseVO getVideoRecommend(@NotEmpty String keyword, @NotEmpty String videoId) throws BusinessException {
+        List<VideoInfo> videoInfoList = esSearchComponent.search(false, keyword, SearchOrderTypeEnum.VIDEO_PLAY.getType(), Constants.ONE, PageSize.SIZE10.getSize()).getList();
+        videoInfoList.stream().filter(item -> !item.getVideoId().equals(videoId)).collect(Collectors.toList());
+        return getSuccessResponseVO(videoInfoList);
+    }
+
+    @RequestMapping("/loadHotVideoList")
+    public ResponseVO loadHotVideoList(Integer pageNo) {
+        VideoInfoQuery videoInfoQuery = new VideoInfoQuery();
+        videoInfoQuery.setPageNo(pageNo);
+        videoInfoQuery.setQueryUserInfo(true);
+        videoInfoQuery.setOrderBy("play_count desc");
+        videoInfoQuery.setLastPlayHour(Constants.HOUR_24);
+        PaginationResultVO<VideoInfo> resultVO = videoInfoService.findByPage(videoInfoQuery);
+        return getSuccessResponseVO(resultVO);
     }
 }

@@ -1,6 +1,7 @@
 package com.Bibibi.service;
 
 import com.Bibibi.entity.dto.TokenUserInfoDto;
+import com.Bibibi.entity.dto.UserCountInfoDto;
 import com.Bibibi.entity.po.UserInfo;
 import com.Bibibi.entity.query.UserInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
@@ -107,4 +108,6 @@ public interface UserInfoService {
     UserInfo getUserDetailInfo(String currentUserId, String userId) throws BusinessException;
 
     void updateUserInfo(UserInfo userInfo, TokenUserInfoDto tokenUserInfoDto) throws BusinessException;
+
+    UserCountInfoDto getUserCountInfo(String userId);
 }
