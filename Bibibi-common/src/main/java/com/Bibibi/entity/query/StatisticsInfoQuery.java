@@ -2,81 +2,101 @@ package com.Bibibi.entity.query;
 
 
 /**
- * @Description:数据统计查询对象
- * @date:2024-12-04
- * @author: liujun
+ * 数据统计参数
  */
-public class StatisticsInfoQuery extends BaseQuery{
-	/**
-	 * 统计日期
-	 */
-	private String statisticsDate;
+public class StatisticsInfoQuery extends BaseParam {
 
-	private String statisticsDateFuzzy;
 
-	/**
-	 * 用户ID
-	 */
-	private String userId;
+    /**
+     * 统计日期
+     */
+    private String statisticsDate;
 
-	private String userIdFuzzy;
+    private String statisticsDateFuzzy;
 
-	/**
-	 * 数据统计类型
-	 */
-	private Integer dataType;
+    /**
+     * 用户ID
+     */
+    private String userId;
 
-	/**
-	 * 统计数量
-	 */
-	private Integer statisticsCount;
+    private String userIdFuzzy;
 
-	public void setStatisticsDateFuzzy(String statisticsDateFuzzy) {
-		this.statisticsDateFuzzy = statisticsDateFuzzy;
-	}
+    /**
+     * 数据统计类型
+     */
+    private Integer dataType;
 
-	public String getStatisticsDateFuzzy() {
-		return this.statisticsDateFuzzy;
-	}
+    /**
+     * 统计数量
+     */
+    private Integer statisticsCount;
 
-	public void setUserIdFuzzy(String userIdFuzzy) {
-		this.userIdFuzzy = userIdFuzzy;
-	}
+    private String statisticsDateStart;
 
-	public String getUserIdFuzzy() {
-		return this.userIdFuzzy;
-	}
+    private String statisticsDateEnd;
 
-	public void setStatisticsDate(String statisticsDate) {
-		this.statisticsDate = statisticsDate;
-	}
+    public String getStatisticsDateStart() {
+        return statisticsDateStart;
+    }
 
-	public String getStatisticsDate() {
-		return this.statisticsDate;
-	}
+    public void setStatisticsDateStart(String statisticsDateStart) {
+        this.statisticsDateStart = statisticsDateStart;
+    }
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getStatisticsDateEnd() {
+        return statisticsDateEnd;
+    }
 
-	public String getUserId() {
-		return this.userId;
-	}
+    public void setStatisticsDateEnd(String statisticsDateEnd) {
+        this.statisticsDateEnd = statisticsDateEnd;
+    }
 
-	public void setDataType(Integer dataType) {
-		this.dataType = dataType;
-	}
+    public void setStatisticsDate(String statisticsDate) {
+        this.statisticsDate = statisticsDate;
+    }
 
-	public Integer getDataType() {
-		return this.dataType;
-	}
+    public String getStatisticsDate() {
+        return this.statisticsDate;
+    }
 
-	public void setStatisticsCount(Integer statisticsCount) {
-		this.statisticsCount = statisticsCount;
-	}
+    public void setStatisticsDateFuzzy(String statisticsDateFuzzy) {
+        this.statisticsDateFuzzy = statisticsDateFuzzy;
+    }
 
-	public Integer getStatisticsCount() {
-		return this.statisticsCount;
-	}
+    public String getStatisticsDateFuzzy() {
+        return this.statisticsDateFuzzy;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserIdFuzzy(String userIdFuzzy) {
+        this.userIdFuzzy = userIdFuzzy;
+    }
+
+    public String getUserIdFuzzy() {
+        return this.userIdFuzzy;
+    }
+
+    public void setDataType(Integer dataType) {
+        this.dataType = dataType;
+    }
+
+    public Integer getDataType() {
+        return this.dataType;
+    }
+
+    public void setStatisticsCount(Integer statisticsCount) {
+        this.statisticsCount = statisticsCount;
+    }
+
+    public Integer getStatisticsCount() {
+        return this.statisticsCount;
+    }
 
 }

@@ -24,7 +24,7 @@ public class AppInterceptor implements HandlerInterceptor {
     private RedisComponent redisComponent;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws BusinessException {
         if (null == handler) {
             return false;
         }
@@ -35,15 +35,15 @@ public class AppInterceptor implements HandlerInterceptor {
             return true;
         }
         String token = request.getHeader(Constants.TOKEN_ADMIN_KEY);
-        //获取图片
+        //获取文件直接从cookie中获取token
         if (request.getRequestURI().contains(URL_FILE)) {
             token = getTokenFromCookie(request);
         }
         if (StringTools.isEmpty(token)) {
             throw new BusinessException(ResponseCodeEnum.CODE_901);
         }
-        Object sessionObj = redisComponent.getTokenInfo4Admin(token);
-        if (null==sessionObj) {
+        Object sessionObj = redisComponent.getLoginInfo4Admin(token);
+        if (sessionObj == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_901);
         }
         return true;
@@ -55,7 +55,7 @@ public class AppInterceptor implements HandlerInterceptor {
             return null;
         }
         for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(Constants.TOKEN_ADMIN_KEY)) {
+            if (cookie.getName().equalsIgnoreCase(Constants.TOKEN_ADMIN_KEY)) {
                 return cookie.getValue();
             }
         }

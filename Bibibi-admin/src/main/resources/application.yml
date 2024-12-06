@@ -53,7 +53,7 @@ showFFmegLog: true
 
 es:
   host:
-    port: localhost:9200
+    port: 192.168.80.132:9200
   index:
     video:
       name: bibibi_video

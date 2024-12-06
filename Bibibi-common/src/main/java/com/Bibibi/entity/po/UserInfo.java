@@ -75,9 +75,8 @@ public class UserInfo implements Serializable {
 	/**
 	 * 0:禁用 1:正常
 	 */
-	@JsonIgnore
 	private Integer status;
-
+//	private Integer status;
 	/**
 	 * 空间公告
 	 */

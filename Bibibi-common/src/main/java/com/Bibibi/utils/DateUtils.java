@@ -1,10 +1,12 @@
 package com.Bibibi.utils;
 
+import com.Bibibi.enums.DateTimePatternEnum;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class DateUtils {
     private static final Object lockObj = new Object();
@@ -40,5 +42,21 @@ public class DateUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getBeforeDayDate(Integer day) {
+        Calendar calender = Calendar.getInstance();
+        calender.add(Calendar.DAY_OF_YEAR, -day);
+        return format(calender.getTime(), DateTimePatternEnum.YYYY_MM_DD.getPattern());
+    }
+
+    public static List<String> getBeforeDates(Integer beforeDays) {
+        LocalDate endDay = LocalDate.now();
+        ArrayList<String> dateList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (int i = beforeDays; i > 0; i--) {
+            dateList.add(endDay.minusDays(i).format(formatter));
+        }
+        return dateList;
     }
 }

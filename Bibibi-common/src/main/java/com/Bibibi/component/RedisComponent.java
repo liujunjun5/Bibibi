@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -76,6 +77,10 @@ public class RedisComponent {
         String token = UUID.randomUUID().toString();
         redisUtils.setex(Constants.REDIS_KEY_TOKEN_ADMIN + token, account, Constants.REDIS_KEY_EXPIRES_ONE_DAY);
         return token;
+    }
+
+    public String getLoginInfo4Admin(String token) {
+        return (String) redisUtils.get(Constants.REDIS_KEY_TOKEN_ADMIN + token);
     }
 
     public void saveCategoryList(List<CategoryInfo> categoryInfoList) {
@@ -189,5 +194,14 @@ public class RedisComponent {
     public void recordVideoPlayCount(String videoId) {
         String date = DateUtils.format(new Date(), DateTimePatternEnum.YYYY_MM_DD.getPattern());
         redisUtils.incrementex(Constants.REDIS_KEY_VIDEO_PLAY_COUNT + date + ":" + videoId, Constants.REDIS_KEY_EXPIRES_ONE_DAY * 2);
+    }
+
+    public Map<String, Integer> getVideoPlayCount(String date) {
+        Map<String, Integer> videoPlayMap = redisUtils.getBatch(Constants.REDIS_KEY_VIDEO_PLAY_COUNT + date);
+        return videoPlayMap;
+    }
+
+    public void saveSettingDto(SysSettingDto sysSettingDto) {
+        redisUtils.set(Constants.REDIS_KEY_SYS_SETTING, sysSettingDto);
     }
 }

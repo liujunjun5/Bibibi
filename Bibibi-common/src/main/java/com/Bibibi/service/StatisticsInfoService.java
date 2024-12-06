@@ -5,6 +5,8 @@ import com.Bibibi.entity.query.StatisticsInfoQuery;
 import com.Bibibi.entity.vo.PaginationResultVO;
 
 import java.util.List;
+import java.util.Map;
+
 /**
  * @Description:数据统计Service
  * @date:2024-12-04
@@ -58,4 +60,11 @@ public interface StatisticsInfoService {
 	 */
 	Integer deleteByStatisticsDateAndUserIdAndDataType(String statisticsDate, String userId, Integer dataType);
 
+    void statisticsData();
+
+	Map<String, Integer> getStatisticsInfoActualTime(String userId);
+
+	List<StatisticsInfo> findListTotalInfoByParam(StatisticsInfoQuery param);
+
+	List<StatisticsInfo> findUserCountTotalInfoByParam(StatisticsInfoQuery param);
 }

@@ -2,21 +2,25 @@ package com.Bibibi.admin.controller;
 
 import com.Bibibi.entity.config.AppConfig;
 import com.Bibibi.entity.constants.Constants;
+import com.Bibibi.entity.po.VideoInfoFilePost;
 import com.Bibibi.entity.vo.ResponseVO;
 import com.Bibibi.enums.DateTimePatternEnum;
 import com.Bibibi.enums.ResponseCodeEnum;
 import com.Bibibi.exception.BusinessException;
+import com.Bibibi.service.VideoInfoFilePostService;
 import com.Bibibi.utils.DateUtils;
 import com.Bibibi.utils.FFmpegUtils;
 import com.Bibibi.utils.StringTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +40,9 @@ public class FileController extends ABaseController {
     @Resource
     private FFmpegUtils fFmpegUtils;
 
+    @Resource
+    private VideoInfoFilePostService videoInfoFilePostService;
+
     @RequestMapping("/uploadImage")
     public ResponseVO uploadImage(@NotNull MultipartFile file, @NotNull Boolean createThumbnail) throws IOException, BusinessException {
         String month = DateUtils.format(new Date(), DateTimePatternEnum.YYYYMM.getPattern());
@@ -54,6 +61,20 @@ public class FileController extends ABaseController {
             fFmpegUtils.createImageThumbnail(filePath);
         }
         return getSuccessResponseVO(Constants.FILE_COVER + month + "/" + realFileName);
+    }
+
+    @RequestMapping("/videoResource/{fileId}")
+    public void getVideoResource(HttpServletResponse response, @PathVariable @NotEmpty String fileId) {
+        VideoInfoFilePost videoInfoFilePost = videoInfoFilePostService.getByFileId(fileId);
+        String filePath = videoInfoFilePost.getFilePath();
+        readFile(response, filePath + "/" + Constants.M3U8_NAME);
+    }
+
+    @RequestMapping("/videoResource/{fileId}/{ts}")
+    public void getVideoResourceTs(HttpServletResponse response, @PathVariable @NotEmpty String fileId, @PathVariable @NotNull String ts) {
+        VideoInfoFilePost videoInfoFilePost = videoInfoFilePostService.getByFileId(fileId);
+        String filePath = videoInfoFilePost.getFilePath() + "";
+        readFile(response, filePath + "/" + ts);
     }
 
     @RequestMapping("/getResource")
